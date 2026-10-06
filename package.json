@@ -1,0 +1,38 @@
+{
+  "name": "sobuj-ghonta",
+  "version": "1.0.0",
+  "description": "Sobuj Ghonta (সবুজ ঘণ্টা) — The Green Hour: Ambient, screen-minimizing outdoor companion for safe urban green discovery.",
+  "main": "server/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev:server": "node --watch server/index.js",
+    "dev:client": "npm run dev --workspace=client",
+    "build": "npm run build --workspace=client",
+    "test": "node --test server/tests/**/*.test.js"
+  },
+  "workspaces": [
+    "client"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "keywords": [
+    "touch-grass",
+    "gemma",
+    "elevenlabs",
+    "render",
+    "hacktoberfest",
+    "bangladesh",
+    "dhaka",
+    "pwa",
+    "air-quality"
+  ],
+  "author": "Sayem Rahman <rahmansayem163@gmail.com>",
+  "license": "MIT"
+}
