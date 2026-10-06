@@ -1,0 +1,18 @@
+{
+  "name": "Sobuj Ghonta (সবুজ ঘণ্টা) — The Green Hour",
+  "short_name": "Sobuj Ghonta",
+  "description": "Ambient, screen-minimizing outdoor companion for safe urban nature discovery.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#08110b",
+  "theme_color": "#08110b",
+  "icons": [
+    {
+      "src": "/leaf.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
