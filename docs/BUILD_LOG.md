@@ -111,6 +111,18 @@ During development, the developer was unable to obtain an ElevenLabs API key. In
    - **Library Voice 402/403 Handling:** If a free account encounters permission or subscription errors on library voices, the error clearly advises adding the voice via VoiceLab or selecting a default voice from `GET /v1/voices`.
    - **Non-Secret Tooling:** Created `npm run tts:test` and `npm run demo:audio` so the developer can run voice synthesis locally without exposing API keys to coding agents or git history.
 
+6. **Live Multi-Tier Test Run Validation (Real Production Findings):**
+   - **Command Executed:** `npm run tts:test`
+   - **Real Finding 1 (ElevenLabs Free Tier Policy):** When synthesizing with default library voice "Anika" (`jUjRbhZWoMK4aDciW36V`), ElevenLabs returned:
+     `HTTP 402: Free users cannot use library voices via the API. Please upgrade your subscription to use this voice.`
+     *Behavior:* The server caught this 402, alerted the operator with actionable remediation (use default pre-made voice or add to VoiceLab), and seamlessly cascaded to Gemini TTS.
+   - **Real Finding 2 (Gemini Daily Quota Ceiling):** For Bengali (`bn`), Gemini 3.8 Flash TTS succeeded with HTTP 200 OK (380,514 bytes generated in 11.8s). For English (`en`), Gemini returned:
+     `HTTP 429: Rate limit exceeded for model gemini-3.8-flash-tts (limit: 10 requests per day on Free Tier). Please retry in 13h48m.`
+     *Behavior:* Gemini backed off, retried, and upon receiving the daily quota limit, cascaded to Meta MMS and then to `browser_web_speech` with zero runtime crashes.
+   - **Architecture Validated:** This live test conclusively justified:
+     1. Pre-bundling all 8 Dhaka walk audio clips into the repo so judges never hit free-tier quota limits.
+     2. Providing CLI/env override (`--voice=21m00Tcm4TlvDq8ikWAM`) for default ElevenLabs pre-made voices.
+
 ---
 
 ## 3. Engineering Decisions

@@ -157,7 +157,8 @@ export async function synthesizeSpeech({
           audioBuffer: result.buffer,
           contentType: result.contentType,
           provider: result.provider,
-          model: result.model
+          model: result.model,
+          voice: result.voice
         };
       }
     } catch (err) {

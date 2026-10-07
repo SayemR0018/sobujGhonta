@@ -136,13 +136,21 @@ npm test
 ```
 ```
 ▶ End-to-End Edge Case & Flow Tests (5 passed)
+▶ ElevenLabs TTS Provider & Multi-Tier Cascade (8 passed)
 ▶ Safety Guardrails Engine (7 passed)
 ▶ Green Window Scoring Engine (6 passed)
 ▶ Free Text-to-Speech (TTS) Provider Chain & Caching (9 passed)
-ℹ tests 27
-ℹ suites 4
-ℹ pass 27
+ℹ tests 35
+ℹ suites 5
+ℹ pass 35
 ℹ fail 0
+```
+
+To test voice generation locally without exposing API keys:
+```bash
+npm run tts:test
+# Or test with a default pre-made voice on free ElevenLabs accounts:
+npm run tts:test -- --voice=21m00Tcm4TlvDq8ikWAM
 ```
 
 ---

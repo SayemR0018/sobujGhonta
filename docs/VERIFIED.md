@@ -50,8 +50,10 @@ Explicit `TTS_PROVIDER` values (`elevenlabs`, `gemini`, `mms`, `browser`, `none`
 - **Free-Plan Credit Protection & Rate Limits:**
   - **Soft Monthly Cap:** Enforced at `8,000` characters (`ELEVENLABS_MONTHLY_CHAR_CAP`), preserving a 2,000-character safety margin on ElevenLabs' 10,000-credit free tier. Automatically cascades to Gemini TTS upon reaching the cap.
   - **Per-Request Character Cap:** Capped at `600` characters per segment.
-- **Library Voice 402/403 Handling:**
-  If a free account encounters permission or payment errors on library voices, the system falls through and instructs the user to either click "Use voice" in their ElevenLabs account or configure a default pre-made voice ID from `GET /v1/voices`.
+- **Library Voice 402/403 Handling & Live Finding:**
+  - *Observed Error (Live Test):* `HTTP 402: Free users cannot use library voices via the API. Please upgrade your subscription to use this voice.`
+  - *Engineering Analysis:* Community Voice Library voices (such as "Anika" `jUjRbhZWoMK4aDciW36V`) are restricted on ElevenLabs Free Tier API keys. The system gracefully catches this HTTP 402, displays an actionable advisory, and falls through to the next provider.
+  - *Free Account Pre-made Voices:* Free accounts can synthesize using ElevenLabs' default pre-made voices (e.g. Rachel: `21m00Tcm4TlvDq8ikWAM`, Domi: `AZnzlk1XvdvUeBnXmlld`, Bella: `EXAVITQu4vr4xnSDxMaL`, Antoni: `ErXwobaYiN019PkySvjV`).
 - **License / Attribution Requirement:** Free tier requires non-commercial use and attribution ("Voice by ElevenLabs").
 
 ### B. Gemini 3.8 Flash TTS (`gemini-3.8-flash-tts`)
@@ -61,12 +63,17 @@ Explicit `TTS_PROVIDER` values (`elevenlabs`, `gemini`, `mms`, `browser`, `none`
 - **Voice Selected:** `Kore` (soothing, calm pacing tailored for mindful nature guidance).
 - **Languages Tested & Verified:**
   - English (`en`): 4 walk segments synthesized (11–13s latency per call, 636–732 kB per clip).
-  - Bengali (`bn` / `bn-BD`): 4 walk segments synthesized (9–13s latency per call, 592–702 kB per clip). Full phonetic fidelity on complex Bengali compound characters and conjuncts.
+  - Bengali (`bn` / `bn-BD`): 4 walk segments synthesized (9–13s latency per call, 592–702 kB per clip; live test: 380 kB in 11.8s). Full phonetic fidelity on complex Bengali compound characters and conjuncts.
 - **Output Format:** Unary requests return standard `audio/wav` with valid `RIFF` / `WAVEfmt ` headers (24,000 Hz, 16-bit mono PCM).
 - **Free Tier Rate Limits & Quotas (Observed):**
-  - **Limit:** Exactly **3 requests per minute (3 RPM)** on Google AI Studio Free Tier.
-  - **Error signature:** `HTTP 429: Rate limit exceeded for model gemini-3.8-flash-tts (limit: 3 requests per minute on Free Tier). Please retry in 25s`.
-  - **Handling:** Automated 25.5s wait on HTTP 429 quota errors before retry, followed by graceful fall-through to Meta MMS-TTS.
+  - **Minute Limit:** Exactly **3 requests per minute (3 RPM)** on Google AI Studio Free Tier.
+    - *Error signature:* `HTTP 429: Rate limit exceeded for model gemini-3.8-flash-tts (limit: 3 requests per minute on Free Tier). Please retry in 25s`.
+  - **Daily Limit:** Exactly **10 requests per day (10 RPD)** on Google AI Studio Free Tier.
+    - *Error signature:* `HTTP 429: Rate limit exceeded for model gemini-3.8-flash-tts (limit: 10 requests per day on Free Tier). Please retry in 13h48m or upgrade your tier at https://ai.dev/rate-limit.`
+  - **Handling & Architectural Necessity:**
+    - Automated backoff and retry for per-minute bursts.
+    - Because of the strict 10 RPD quota, **bundled pre-generated demo audio (`client/public/demo-audio/`) is architectural necessity** to guarantee hackathon judges can experience full audio guidance with zero quota failures.
+    - Uncaught 429s automatically cascade to Meta MMS-TTS and client Browser Web Speech.
 
 ### B. Meta MMS-TTS (`facebook/mms-tts-ben` & `facebook/mms-tts-eng`)
 - **Router Endpoint:** `https://router.huggingface.co/hf-inference/models/{model}`

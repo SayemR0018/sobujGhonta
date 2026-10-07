@@ -46,14 +46,24 @@ const testCases = [
   }
 ];
 
+const voiceArg = process.argv.find(arg => arg.startsWith('--voice='))?.split('=')[1]?.trim() || null;
+
 async function runVoiceTests() {
+  const displayVoice = resolveElevenLabsVoiceId('en', voiceArg);
+
   console.log('========================================================');
   console.log('  Sobuj Ghonta (সবুজ ঘণ্টা) — Voice Test Runner');
   console.log('  Configured TTS Provider:', config.ttsProvider);
   console.log('  ElevenLabs Key Present?:', Boolean(config.elevenlabsApiKey));
-  console.log('  ElevenLabs Voice ID:    ', resolveElevenLabsVoiceId('en'));
+  console.log('  ElevenLabs Voice ID:    ', displayVoice, voiceArg ? '(CLI override)' : '');
   console.log('  ElevenLabs Model ID:    ', config.elevenlabsModelId);
   console.log('  Gemini Key Present?:    ', Boolean(config.geminiApiKey));
+  if (config.elevenlabsApiKey) {
+    console.log('  Note on Free Accounts:  Free accounts cannot use library');
+    console.log('                          voices via API (HTTP 402). Pass');
+    console.log('                          --voice=21m00Tcm4TlvDq8ikWAM to test');
+    console.log('                          with default pre-made Rachel voice.');
+  }
   console.log('========================================================\n');
 
   await fs.mkdir(outputDir, { recursive: true });
@@ -66,6 +76,7 @@ async function runVoiceTests() {
     try {
       const result = await synthesizeSpeech({
         text: tc.text,
+        voice: voiceArg,
         language: tc.language,
         clientIp: '127.0.0.1'
       });
@@ -90,9 +101,11 @@ async function runVoiceTests() {
         await fs.writeFile(outPath, result.audioBuffer);
       }
 
+      const resolvedVoice = result.voice || (result.provider === 'elevenlabs' ? resolveElevenLabsVoiceId(tc.language, voiceArg) : (result.provider === 'gemini' ? config.geminiTtsVoice : 'default'));
+
       console.log(`  Provider:        ${result.provider}`);
       console.log(`  Model ID:        ${result.model || 'N/A'}`);
-      console.log(`  Voice ID:        ${resolveElevenLabsVoiceId(tc.language)}`);
+      console.log(`  Voice ID:        ${resolvedVoice}`);
       console.log(`  Characters Used: ${tc.text.length}`);
       console.log(`  Bytes:           ${result.audioBuffer?.length || 0} bytes`);
       console.log(`  Latency:         ${latencyMs} ms`);
