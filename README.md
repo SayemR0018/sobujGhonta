@@ -76,10 +76,13 @@ npm install
 # 3. Copy environment configuration
 cp .env.example .env
 
-# 4. Run test suite (25 unit & integration tests)
+# 4. Run test suite (27 unit & integration tests)
 npm test
 
-# 5. Build and start production service
+# 5. Run full verification pipeline (tests + build + smoke test)
+npm run verify
+
+# 6. Build and start production service
 npm run build
 npm start
 ```
@@ -132,12 +135,12 @@ npm test
 ```
 ```
 ▶ End-to-End Edge Case & Flow Tests (5 passed)
-▶ Safety Guardrails Engine (5 passed)
+▶ Safety Guardrails Engine (7 passed)
 ▶ Green Window Scoring Engine (6 passed)
 ▶ Free Text-to-Speech (TTS) Provider Chain & Caching (9 passed)
-ℹ tests 25
+ℹ tests 27
 ℹ suites 4
-ℹ pass 25
+ℹ pass 27
 ℹ fail 0
 ```
 

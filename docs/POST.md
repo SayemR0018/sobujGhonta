@@ -142,9 +142,9 @@ Building Sobuj Ghonta around open-weight models, open data, and open web standar
 
 This project was architected, implemented, and verified using **Google Antigravity** (`gemini_cli`). Real agent session transcripts were curated, sanitized of secrets, and saved through **DevRelay**:
 
-{% agent_session sobuj-ghonta-building-the-green-hour-with-antigravity-rhqt4o %}
+{% agent_session sobuj-ghonta-architecture-free-tts-chain-full-qa-render-deployment-with-antigravity-d7vlbw %}
 
-*(Direct Session Link: [https://dev.to/agent_sessions/sobuj-ghonta-building-the-green-hour-with-antigravity-rhqt4o](https://dev.to/agent_sessions/sobuj-ghonta-building-the-green-hour-with-antigravity-rhqt4o))*
+*(Direct Session Link: [https://dev.to/agent_sessions/sobuj-ghonta-architecture-free-tts-chain-full-qa-render-deployment-with-antigravity-d7vlbw](https://dev.to/agent_sessions/sobuj-ghonta-architecture-free-tts-chain-full-qa-render-deployment-with-antigravity-d7vlbw))*
 
 ---
 

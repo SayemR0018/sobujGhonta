@@ -39,10 +39,10 @@ Winning posts do not use generic talking points about open source. They pinpoint
 3. **Demo:** Direct link to Render, plus clear instructions for the instant, zero-key Dhaka demo.
 4. **Code:** Embedded GitHub repository card with clean README and MIT license.
 5. **How I Built It:**
-   - Architecture breakdown (Open-Meteo + Overpass + Green Window Score + Gemma + ElevenLabs + PWA).
+   - Architecture breakdown (Open-Meteo + Overpass + Green Window Score + Gemma + Free TTS Provider Chain + PWA).
    - Code snippets for the deterministic scoring engine and safety guardrails.
    - PWA caching strategy for zero-signal trail playback.
 6. **Why Does Open Innovation Matter?:** Deep dive into open weights (Gemma), open data (Open-Meteo, OSM), and local-first execution.
 7. **Field Test:** Authentic walk log from user testing in Dhaka.
 8. **My Agent Session:** DevRelay agent transcript embed and engineering reflections.
-9. **Prize Categories:** Clear bullets for Best Use of Gemma, ElevenLabs, and Render.
+9. **Prize Categories:** Clear bullets for Best Use of Gemma and Best Use of Render (ElevenLabs intentionally omitted).

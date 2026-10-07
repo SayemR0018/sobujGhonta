@@ -19,7 +19,7 @@
 - [x] **Solo / Team Attribution:** Solo submission by Sayem Rahman (`@SayemR0018`).
 - [x] **Tagging:** Post tagged with `#devchallenge`, `#hf26challenge`, `#opensource`, `#ai`.
 - [x] **License:** Permissive open-source license (MIT License) committed in repo root.
-- [x] **Session Provenance:** Real DevRelay agent session recorded, saved, and embedded in post (`{% agent_session sobuj-ghonta-building-the-green-hour-with-antigravity-rhqt4o %}`).
+- [x] **Session Provenance:** Real DevRelay agent session recorded, saved, and embedded in post (`{% agent_session sobuj-ghonta-architecture-free-tts-chain-full-qa-render-deployment-with-antigravity-d7vlbw %}`).
 - [x] **No Fabricated Data:** Authentic verification numbers, real weather/AQI calculations, zero fake field-test quotes.
 
 ---
