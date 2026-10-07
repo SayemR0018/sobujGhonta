@@ -7,48 +7,53 @@
 ## 1. Verified Benchmark Metrics & Test Results
 
 ### Automated Test Suite Run
-- **Command:** `npm test` (`node --test server/tests/**/*.test.js`)
-- **Node.js Version:** `v24.16.0`
-- **Total Tests:** 25 tests across 4 test suites
-- **Passed:** 25 / 25 (100%)
-- **Execution Time:** 459.93 ms
+- **Command:** `npm test` (`node --test server/tests/**/*.test.js server/tests/*.js`)
+- **Node.js Version:** `v24.16.0` (pinned to `20.18.0` in `.node-version` for Render)
+- **Total Tests:** 27 tests across 4 test suites
+- **Passed:** 27 / 27 (100%)
+- **Execution Time:** ~401 ms
+- **Production Integration QA:** 16 / 16 passed (`scripts/fullQaRunner.mjs`)
+- **Deployment Smoke Verification:** 8 / 8 passed (`scripts/smoke.mjs`)
+- **Source Codebase Size:** 5,476 lines of code across 41 tracked files (excluding lockfile and build artifacts)
 
 #### Suite Breakdown
 1. **Green Window Scoring Engine (`scoring.test.js`):**
-   - Optimal weather + golden hour top score: PASSED (1.88 ms)
-   - Severe air pollution (AQI 220) penalty: PASSED (2.19 ms)
-   - Extreme heat (>38°C) thermal penalty: PASSED (0.29 ms)
-   - Thunderstorm weather code (95) penalty: PASSED (0.33 ms)
-   - Nighttime park exploration penalty: PASSED (0.29 ms)
-   - 24h timeline best window identification: PASSED (2.40 ms)
+   - Optimal weather + golden hour top score: PASSED (2.3 ms)
+   - Severe air pollution (AQI 220) penalty: PASSED (1.6 ms)
+   - Extreme heat (>38°C) thermal penalty: PASSED (0.25 ms)
+   - Thunderstorm weather code (95) penalty: PASSED (0.24 ms)
+   - Nighttime park exploration penalty: PASSED (0.22 ms)
+   - 24h timeline best window identification: PASSED (2.35 ms)
 2. **Safety Guardrails Engine (`guardrails.test.js`):**
-   - AQI > 150 overrides strenuous effort to gentle: PASSED (1.95 ms)
-   - AQI > 200 mandates rest and N95 mask advice: PASSED (1.32 ms)
-   - Bangla translations unicode script integrity: PASSED (0.33 ms)
-   - Warm, humid, rainy mosquito risk trigger: PASSED (0.30 ms)
-   - Overly verbose walk script segments trimmed to <=60 words: PASSED (0.33 ms)
+   - AQI > 150 overrides strenuous effort to gentle: PASSED (3.0 ms)
+   - AQI > 200 mandates rest and N95 mask advice: PASSED (0.5 ms)
+   - Bangla translations unicode script integrity: PASSED (0.4 ms)
+   - Warm, humid, rainy mosquito risk trigger: PASSED (0.37 ms)
+   - Overly verbose walk script segments trimmed to <=60 words: PASSED (0.39 ms)
+   - Apparent temp >= 38°C triggers extreme heat avoidance: PASSED (0.30 ms)
+   - Thunderstorm weather codes (95, 96, 99) trigger severe weather warning: PASSED (0.36 ms)
 3. **End-to-End Edge Cases & Flow Tests (`e2eFlows.test.js`):**
-   - AQI > 200 hazardous scenario: PASSED (1.53 ms)
-   - Bangla script rendering: PASSED (0.51 ms)
-   - SHA-256 deterministic audio hash caching: PASSED (1.02 ms)
-   - Haversine distance accuracy on Dhaka park coordinates: PASSED (0.34 ms)
-   - Bundled Dhaka fallback dataset completeness: PASSED (0.18 ms)
+   - AQI > 200 hazardous scenario: PASSED (2.3 ms)
+   - Bangla script rendering: PASSED (0.67 ms)
+   - SHA-256 deterministic audio hash caching: PASSED (1.1 ms)
+   - Haversine distance accuracy on Dhaka park coordinates: PASSED (0.46 ms)
+   - Bundled Dhaka fallback dataset completeness: PASSED (0.24 ms)
 4. **Free Text-to-Speech (TTS) Provider Chain & Caching (`tts.test.js`):**
-   - Deterministic audio hashing across identical inputs: PASSED (2.81 ms)
-   - Oversized input exceeding 450 characters is rejected: PASSED (1.24 ms)
-   - Empty or whitespace input is rejected: PASSED (0.39 ms)
-   - Per-IP sliding window rate limit enforces max 30 requests: PASSED (0.56 ms)
-   - Wrap PCM utility creates valid 44-byte RIFF/WAVE header: PASSED (0.63 ms)
-   - Explicit browser provider returns client fallback signal: PASSED (0.43 ms)
-   - Explicit none provider disables TTS gracefully: PASSED (0.27 ms)
-   - Disk cache hit serves stored buffer on duplicate request: PASSED (11.79 ms)
-   - Graceful fallback to browser speech on remote provider failure: PASSED (216.98 ms)
+   - Deterministic audio hashing across identical inputs: PASSED (2.2 ms)
+   - Oversized input exceeding 450 characters is rejected: PASSED (1.4 ms)
+   - Empty or whitespace input is rejected: PASSED (0.49 ms)
+   - Per-IP sliding window rate limit enforces max 30 requests: PASSED (0.55 ms)
+   - Wrap PCM utility creates valid 44-byte RIFF/WAVE header: PASSED (0.59 ms)
+   - Explicit browser provider returns client fallback signal: PASSED (0.41 ms)
+   - Explicit none provider disables TTS gracefully: PASSED (0.29 ms)
+   - Disk cache hit serves stored buffer on duplicate request: PASSED (13.3 ms)
+   - Graceful fallback to browser speech on remote provider failure: PASSED (152.7 ms)
 
-### Frontend Production Asset Sizes (Vite 6.0)
+### Frontend Production Asset Sizes (Vite 6.4.4)
 - **HTML Shell (`dist/index.html`):** 1.34 kB (gzip: 0.68 kB)
-- **Styles (`dist/assets/index-D0y0JKS0.css`):** 2.99 kB (gzip: 1.17 kB)
-- **Application Bundle (`dist/assets/index-DyVxXDH1.js`):** 212.81 kB (gzip: 64.35 kB)
-- **Build Time:** 18.99 s
+- **Styles (`dist/assets/index-D92vYZIN.css`):** 3.28 kB (gzip: 1.28 kB)
+- **Application Bundle (`dist/assets/index-CR4mcBwa.js`):** 215.27 kB (gzip: 64.95 kB)
+- **Build Time:** 19.17 s
 
 ### Real API Response Latencies & Demo Audio Metrics
 - **`/health`:** ~12 ms
