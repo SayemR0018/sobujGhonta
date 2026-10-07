@@ -4,6 +4,8 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { rateLimit } from 'express-rate-limit';
 import path from 'node:path';
+import fs from 'node:fs';
+import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 import { apiRouter } from './routes/api.js';
@@ -95,6 +97,18 @@ app.use('/api', apiLimiter, apiRouter);
 
 // Production Static Asset Serving with Optimized Cache Headers
 const clientDistPath = path.resolve(__dirname, '../client/dist');
+const clientIndexPath = path.join(clientDistPath, 'index.html');
+
+// Automated build safeguard: if index.html is missing on startup, compile frontend
+if (!fs.existsSync(clientIndexPath) && process.env.NODE_ENV !== 'test') {
+  console.log('[Sobuj Ghonta] Notice: client/dist/index.html not found! Triggering automatic frontend build...');
+  try {
+    execSync('npm run build --workspace=client', { stdio: 'inherit' });
+    console.log('[Sobuj Ghonta] Frontend build completed successfully.');
+  } catch (buildErr) {
+    console.error('[Sobuj Ghonta] Failed to auto-build frontend:', buildErr.message);
+  }
+}
 
 app.use(
   express.static(clientDistPath, {
@@ -110,14 +124,15 @@ app.use(
   })
 );
 
-// SPA Fallback: Never shadow /api
+// SPA Fallback: Never shadow /api or /health
 app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api')) {
+  if (req.path.startsWith('/api') || req.path === '/health') {
     return next();
   }
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.sendFile(path.join(clientDistPath, 'index.html'), err => {
+  res.sendFile(clientIndexPath, err => {
     if (err) {
+      console.error('[Static Serve Error] Failed to send index.html:', err.message);
       res.status(200).send(`
         <!DOCTYPE html>
         <html>
@@ -125,6 +140,7 @@ app.get('*', (req, res, next) => {
           <body style="font-family:sans-serif;background:#0d140e;color:#e8f5e9;padding:2rem;text-align:center;">
             <h1>Sobuj Ghonta (সবুজ ঘণ্টা) — The Green Hour</h1>
             <p>API Server is running in ${config.nodeEnv} mode.</p>
+            <p style="color:#ef5350;">Notice: Static client build not found (checked ${clientIndexPath}).</p>
             <p><a href="/health" style="color:#81c784;">/health</a> | <a href="/api/demo/dhaka" style="color:#81c784;">/api/demo/dhaka</a></p>
           </body>
         </html>

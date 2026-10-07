@@ -7,7 +7,7 @@
 **Challenge URL:** [DEV Week 1 Challenge](https://dev.to/challenges/hacktoberfest-week1-2026-10-05)  
 **Target Project:** Sobuj Ghonta (সবুজ ঘণ্টা) — The Green Hour  
 **Repository:** [SayemR0018/sobujGhonta](https://github.com/SayemR0018/sobujGhonta)  
-**Live URL:** [https://sobuj-ghonta.onrender.com](https://sobuj-ghonta.onrender.com) (Render Blueprint ready)  
+**Live URL:** [https://sobujghonta.onrender.com](https://sobujghonta.onrender.com) (Deployed on Render)  
 
 ---
 

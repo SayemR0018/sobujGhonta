@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: sobuj-ghonta
+    name: sobujghonta
     runtime: node
     plan: free
     region: oregon

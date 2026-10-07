@@ -3,7 +3,7 @@ dotenv.config();
 
 export const config = {
   port: parseInt(process.env.PORT || '10000', 10),
-  nodeEnv: process.env.NODE_ENV || 'development',
+  nodeEnv: process.env.NODE_ENV || (process.env.RENDER ? 'production' : 'development'),
 
   // LLM Configuration
   llmProvider: process.env.LLM_PROVIDER || ((process.env.GEMMA_API_KEY || process.env.GEMINI_API_KEY) ? 'gemma_api' : 'mock'),

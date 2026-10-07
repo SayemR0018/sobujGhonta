@@ -69,7 +69,7 @@ dist/assets/index-CR4mcBwa.js   215.27 kB │ gzip: 64.95 kB
 [Sobuj Ghonta] Server listening on http://0.0.0.0:10000
 [Sobuj Ghonta] Mode: production | LLM: gemma_api | TTS: auto
 ==> Health check path /health responded with HTTP 200
-==> Your service is live 🎉 https://sobuj-ghonta.onrender.com
+==> Your service is live 🎉 https://sobujghonta.onrender.com
 ```
 
 ---
@@ -87,18 +87,18 @@ dist/assets/index-CR4mcBwa.js   215.27 kB │ gzip: 64.95 kB
 
 ## 5. Post-Deployment Verification (Smoke Test)
 
-Once Render finishes deploying and gives you your live service URL (e.g. `https://sobuj-ghonta.onrender.com`), verify it with one command:
+Once Render finishes deploying and gives you your live service URL (e.g. `https://sobujghonta.onrender.com`), verify it with one command:
 
 ```bash
 # Run deployment smoke test against live Render URL
-node scripts/smoke.mjs https://sobuj-ghonta.onrender.com
+node scripts/smoke.mjs https://sobujghonta.onrender.com
 ```
 
 ### Expected Output:
 ```text
 ========================================================
   Sobuj Ghonta (সবুজ ঘণ্টা) — Deployment Smoke Test
-  Target: https://sobuj-ghonta.onrender.com
+  Target: https://sobujghonta.onrender.com
   Time:   2026-10-07T...
 ========================================================
 

@@ -51,7 +51,7 @@ I built **Sobuj Ghonta (সবুজ ঘণ্টা — "The Green Hour")** to 
 
 ## Demo
 
-- **Live Deployment on Render:** [https://sobuj-ghonta.onrender.com](https://sobuj-ghonta.onrender.com) *(or connect your own instance via the included Blueprint)*
+- **Live Deployment on Render:** [https://sobujghonta.onrender.com](https://sobujghonta.onrender.com) *(or connect your own instance via the included Blueprint)*
 - **Zero-Key Instant Dhaka Demo:** Tap **"Demo: Dhaka (Offline)"** in the top navigation bar. It runs entirely on bundled, authentic Dhaka telemetry and pre-generated audio clips with **0 ms external network latency** and **zero API keys required**, allowing judges to test every feature instantly.
 
 ![Sobuj Ghonta Mobile Interface](https://raw.githubusercontent.com/SayemR0018/sobujGhonta/main/docs/screenshot.png)
