@@ -60,7 +60,7 @@
 - [x] **Overall Winner Track ($250)**
   - *Deliverable:* Comprehensive combination of writing quality, open-source innovation, full offline resilience, and bilingual cultural relevance.
 
-*(Note: ElevenLabs is intentionally NOT claimed or used; free TTS provider chain used instead).*
+*(Note: ElevenLabs is integrated as an optional top-tier provider in `TTS_PROVIDER=auto` with voice "Anika" `jUjRbhZWoMK4aDciW36V` and full graceful fallback down the chain. Only claim the partner prize track if active in the live deployment).*
 
 ---
 

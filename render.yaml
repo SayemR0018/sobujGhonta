@@ -29,3 +29,9 @@ services:
         value: Kore
       - key: HF_TOKEN
         sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_VOICE_ID
+        value: jUjRbhZWoMK4aDciW36V
+      - key: ELEVENLABS_MODEL_ID
+        value: eleven_multilingual_v2

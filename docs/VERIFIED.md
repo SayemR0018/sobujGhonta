@@ -25,11 +25,36 @@
 
 ---
 
-## 2. Free Text-to-Speech (TTS) Provider Chain
+## 2. Text-to-Speech (TTS) Multi-Tier Provider Chain
 
-*ElevenLabs was completely removed from the project due to key unavailability. Replaced by a zero-cost, multi-tier provider chain.*
+The application employs a robust, cascading TTS architecture (`auto` mode order):
+`elevenlabs` (only if `ELEVENLABS_API_KEY` is present) → `gemini` → `mms` → `browser`.
+Explicit `TTS_PROVIDER` values (`elevenlabs`, `gemini`, `mms`, `browser`, `none`) force a single provider. All 401/402/403/429/quota errors gracefully fall through to the next provider.
 
-### A. Gemini 3.8 Flash TTS (`gemini-3.8-flash-tts`)
+### A. ElevenLabs TTS (`eleven_multilingual_v2` / `eleven_turbo_v2_5`)
+- **Status:** Optional top-tier provider when `ELEVENLABS_API_KEY` is supplied in local environment.
+- **Endpoint:** `POST https://api.elevenlabs.io/v1/text-to-speech/{voice_id}`
+- **Authentication:** `xi-api-key: $ELEVENLABS_API_KEY` (server-side only; key is never leaked to browser or logs).
+- **Default Voice ID:** `jUjRbhZWoMK4aDciW36V` (Community Library Voice "Anika", listed language Hindi).
+- **Language Precedence:**
+  1. Per-language override: `ELEVENLABS_VOICE_ID_BN` (for Bengali) or `ELEVENLABS_VOICE_ID_EN` (for English)
+  2. General `ELEVENLABS_VOICE_ID` from environment
+  3. Default library voice: `jUjRbhZWoMK4aDciW36V`
+- **Model Selected & Verified:** `eleven_multilingual_v2` (officially verified support for 29+ languages including Bengali/ben) or `eleven_turbo_v2_5`. Configurable via `ELEVENLABS_MODEL_ID`.
+- **Verified Voice Settings (Walking Guide Defaults):**
+  - `speed`: `0.9` (gentle, mindful pacing for outdoor guidance)
+  - `stability`: `0.5`
+  - `similarity_boost`: `0.75`
+  - `style`: `0.0`
+  - `use_speaker_boost`: `true`
+- **Free-Plan Credit Protection & Rate Limits:**
+  - **Soft Monthly Cap:** Enforced at `8,000` characters (`ELEVENLABS_MONTHLY_CHAR_CAP`), preserving a 2,000-character safety margin on ElevenLabs' 10,000-credit free tier. Automatically cascades to Gemini TTS upon reaching the cap.
+  - **Per-Request Character Cap:** Capped at `600` characters per segment.
+- **Library Voice 402/403 Handling:**
+  If a free account encounters permission or payment errors on library voices, the system falls through and instructs the user to either click "Use voice" in their ElevenLabs account or configure a default pre-made voice ID from `GET /v1/voices`.
+- **License / Attribution Requirement:** Free tier requires non-commercial use and attribution ("Voice by ElevenLabs").
+
+### B. Gemini 3.8 Flash TTS (`gemini-3.8-flash-tts`)
 - **Endpoint:** `POST https://generativelanguage.googleapis.com/v1beta/interactions`
 - **Authentication:** `x-goog-api-key: $GEMMA_API_KEY` (or `$GEMINI_API_KEY`). **Reuses the identical Google AI Studio key as Gemma.**
 - **Model ID:** `gemini-3.8-flash-tts`

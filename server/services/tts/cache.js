@@ -15,7 +15,7 @@ export const DEMO_AUDIO_DIRS = [
 const ipRateLimits = new Map();
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 const MAX_REQUESTS_PER_WINDOW = 30;
-export const MAX_CHARACTERS_PER_SEGMENT = 450;
+export const MAX_CHARACTERS_PER_SEGMENT = 600;
 
 /**
  * Checks sliding-window per-IP rate limit
@@ -49,12 +49,21 @@ export function resetRateLimits() {
 
 /**
  * Computes deterministic SHA-256 hash for audio caching
+ * Key: text + voiceId + lang + provider + modelId + settings
  */
-export function computeAudioHash(text, voice = 'default', lang = 'en', provider = 'auto') {
+export function computeAudioHash(
+  text,
+  voice = 'default',
+  lang = 'en',
+  provider = 'auto',
+  model = '',
+  settings = ''
+) {
   const normText = String(text || '').trim();
+  const settingsStr = typeof settings === 'object' ? JSON.stringify(settings) : String(settings || '');
   return crypto
     .createHash('sha256')
-    .update(`${normText}|${voice}|${lang}|${provider}`)
+    .update(`${normText}|${voice}|${lang}|${provider}|${model}|${settingsStr}`)
     .digest('hex');
 }
 

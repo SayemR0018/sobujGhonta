@@ -17,7 +17,7 @@ To make matters harder, urban nature outings require navigating **environmental 
 1. **Discovers Safe Urban Green Windows:** Computes a deterministic 0–100 hourly score combining real-time Open-Meteo AQI, PM2.5, apparent temperature, UV, rain/thunder, and golden hour windows.
 2. **Finds Nearby Canopies:** Queries OpenStreetMap Overpass for parks, gardens, and lakesides within ~3 km, calculating walking distance and time.
 3. **Generates Mindful Guided Walks:** Uses Google's open-weight **Gemma** model with strict code-level safety guardrails that AI cannot override (forcing gentle effort and N95 mask warnings when air is polluted).
-4. **Puts the Phone in Your Pocket:** Delivers spoken voice narrations (bilingual Bengali & English) via a **free multi-tier TTS provider chain** (Gemini 3.8 Flash TTS, open-weight Meta MMS-TTS, and browser Web Speech API fallback) with pre-cached audio for zero-signal trails. Features an **OLED pitch-black Pocket Mode** and lock-screen **Media Session API** controls so your phone stays stowed.
+4. **Puts the Phone in Your Pocket:** Delivers spoken voice narrations (bilingual Bengali & English) via a **cascading multi-tier TTS provider chain** (optional ElevenLabs with voice "Anika", Gemini 3.8 Flash TTS, open-weight Meta MMS-TTS, and browser Web Speech API fallback) with pre-cached audio for zero-signal trails. Features an **OLED pitch-black Pocket Mode** and lock-screen **Media Session API** controls so your phone stays stowed. (*Audio attribution: "Voice by ElevenLabs" when active*).
 5. **Measures Screen Time Honestly:** Built-in **Page Visibility API meter** tracks the exact ratio of screen time vs. outdoor walking time, proving that the screen was the shortest part of your day.
 6. **On-Device Nature Journal:** Preserves flower and leaf observations in **IndexedDB** on your personal device; photos are never stored server-side.
 
@@ -50,11 +50,12 @@ We believe in complete architectural transparency:
 | **Geospatial Mapping** | **OpenStreetMap (Overpass)** | Open Data (ODbL) | Hyper-local green spaces, parks, and waterfronts |
 | **Client & Server Code** | React 18, Vite 6, Express | **MIT License** | Completely open source |
 | **User Data & Journal** | Browser **IndexedDB** | On-Device Local | Field notes & photos never leave your device |
+| **ElevenLabs TTS (Optional)** | Voice "Anika" (`jUjRbhZWoMK4aDciW36V`) | Closed Hosted API (Free Tier) | Optional top tier if `ELEVENLABS_API_KEY` set. Free tier has no commercial license and requires attribution: **"Voice by ElevenLabs"**. App runs completely without it. |
 | **Meta MMS-TTS** | `facebook/mms-tts-ben` & `eng` | Open Weights (CC-BY-NC 4.0) | Open-weight multi-lingual speech model run serverless |
 | **Gemini TTS** | `gemini-3.8-flash-tts` | Hosted Developer API | Free-tier speech synthesis using the same Google AI Studio key as Gemma |
 | **Browser TTS** | Web Speech API | Open Web Standard | 100% client-side, zero server dependencies |
 
-*(Note: ElevenLabs was completely removed from the project in favor of this free, accessible provider chain).*
+*(Note: The entire application functions 100% without ElevenLabs. If no ElevenLabs key is present or quota is exhausted, it seamlessly cascades to Gemini TTS, open-weight Meta MMS, or browser speech).*
 
 ---
 

@@ -9,45 +9,54 @@
 ### Automated Test Suite Run
 - **Command:** `npm test` (`node --test server/tests/**/*.test.js server/tests/*.js`)
 - **Node.js Version:** `v24.16.0` (pinned to `20.18.0` in `.node-version` for Render)
-- **Total Tests:** 27 tests across 4 test suites
-- **Passed:** 27 / 27 (100%)
-- **Execution Time:** ~401 ms
+- **Total Tests:** 35 tests across 5 test suites
+- **Passed:** 35 / 35 (100%)
+- **Execution Time:** ~387 ms
 - **Production Integration QA:** 16 / 16 passed (`scripts/fullQaRunner.mjs`)
 - **Deployment Smoke Verification:** 8 / 8 passed (`scripts/smoke.mjs`)
-- **Source Codebase Size:** 5,476 lines of code across 41 tracked files (excluding lockfile and build artifacts)
+- **Source Codebase Size:** 5,612 lines of code across 43 tracked files (excluding lockfile and build artifacts)
 
 #### Suite Breakdown
 1. **Green Window Scoring Engine (`scoring.test.js`):**
-   - Optimal weather + golden hour top score: PASSED (2.3 ms)
-   - Severe air pollution (AQI 220) penalty: PASSED (1.6 ms)
-   - Extreme heat (>38°C) thermal penalty: PASSED (0.25 ms)
-   - Thunderstorm weather code (95) penalty: PASSED (0.24 ms)
-   - Nighttime park exploration penalty: PASSED (0.22 ms)
-   - 24h timeline best window identification: PASSED (2.35 ms)
+   - Optimal weather + golden hour top score: PASSED (1.4 ms)
+   - Severe air pollution (AQI 220) penalty: PASSED (1.3 ms)
+   - Extreme heat (>38°C) thermal penalty: PASSED (0.23 ms)
+   - Thunderstorm weather code (95) penalty: PASSED (0.23 ms)
+   - Nighttime park exploration penalty: PASSED (0.21 ms)
+   - 24h timeline best window identification: PASSED (2.0 ms)
 2. **Safety Guardrails Engine (`guardrails.test.js`):**
-   - AQI > 150 overrides strenuous effort to gentle: PASSED (3.0 ms)
-   - AQI > 200 mandates rest and N95 mask advice: PASSED (0.5 ms)
-   - Bangla translations unicode script integrity: PASSED (0.4 ms)
-   - Warm, humid, rainy mosquito risk trigger: PASSED (0.37 ms)
-   - Overly verbose walk script segments trimmed to <=60 words: PASSED (0.39 ms)
-   - Apparent temp >= 38°C triggers extreme heat avoidance: PASSED (0.30 ms)
-   - Thunderstorm weather codes (95, 96, 99) trigger severe weather warning: PASSED (0.36 ms)
+   - AQI > 150 overrides strenuous effort to gentle: PASSED (3.1 ms)
+   - AQI > 200 mandates rest and N95 mask advice: PASSED (0.38 ms)
+   - Bangla translations unicode script integrity: PASSED (0.41 ms)
+   - Warm, humid, rainy mosquito risk trigger: PASSED (0.29 ms)
+   - Overly verbose walk script segments trimmed to <=60 words: PASSED (0.40 ms)
+   - Apparent temp >= 38°C triggers extreme heat avoidance: PASSED (0.33 ms)
+   - Thunderstorm weather codes (95, 96, 99) trigger severe weather warning: PASSED (0.50 ms)
 3. **End-to-End Edge Cases & Flow Tests (`e2eFlows.test.js`):**
-   - AQI > 200 hazardous scenario: PASSED (2.3 ms)
+   - AQI > 200 hazardous scenario: PASSED (1.8 ms)
    - Bangla script rendering: PASSED (0.67 ms)
    - SHA-256 deterministic audio hash caching: PASSED (1.1 ms)
-   - Haversine distance accuracy on Dhaka park coordinates: PASSED (0.46 ms)
-   - Bundled Dhaka fallback dataset completeness: PASSED (0.24 ms)
+   - Haversine distance accuracy on Dhaka park coordinates: PASSED (0.32 ms)
+   - Bundled Dhaka fallback dataset completeness: PASSED (0.18 ms)
 4. **Free Text-to-Speech (TTS) Provider Chain & Caching (`tts.test.js`):**
-   - Deterministic audio hashing across identical inputs: PASSED (2.2 ms)
-   - Oversized input exceeding 450 characters is rejected: PASSED (1.4 ms)
-   - Empty or whitespace input is rejected: PASSED (0.49 ms)
-   - Per-IP sliding window rate limit enforces max 30 requests: PASSED (0.55 ms)
+   - Deterministic audio hashing across identical inputs: PASSED (2.1 ms)
+   - Oversized input exceeding 450 characters is rejected: PASSED (1.3 ms)
+   - Empty or whitespace input is rejected: PASSED (0.40 ms)
+   - Per-IP sliding window rate limit enforces max 30 requests: PASSED (0.46 ms)
    - Wrap PCM utility creates valid 44-byte RIFF/WAVE header: PASSED (0.59 ms)
-   - Explicit browser provider returns client fallback signal: PASSED (0.41 ms)
-   - Explicit none provider disables TTS gracefully: PASSED (0.29 ms)
-   - Disk cache hit serves stored buffer on duplicate request: PASSED (13.3 ms)
-   - Graceful fallback to browser speech on remote provider failure: PASSED (152.7 ms)
+   - Explicit browser provider returns client fallback signal: PASSED (0.39 ms)
+   - Explicit none provider disables TTS gracefully: PASSED (0.31 ms)
+   - Disk cache hit serves stored buffer on duplicate request: PASSED (12.3 ms)
+   - Graceful fallback to browser speech on remote provider failure: PASSED (146.7 ms)
+5. **ElevenLabs TTS Provider & Multi-Tier Cascade (`elevenlabs.test.js`):**
+   - Voice ID resolution precedence hierarchy: PASSED (1.7 ms)
+   - Walking-guide voice settings verification: PASSED (0.54 ms)
+   - Handled error when `ELEVENLABS_API_KEY` unset: PASSED (0.86 ms)
+   - Soft monthly character budget cap (8,000 chars): PASSED (1.09 ms)
+   - 402/403 library voice payment/permission error handling: PASSED (0.66 ms)
+   - Cascade on 429/401 rate limit/auth errors: PASSED (18.7 ms)
+   - Successful synthesis updates monthly char usage: PASSED (31.2 ms)
+   - Zero secret exposure: logs and outputs redact API keys: PASSED (0.52 ms)
 
 ### Frontend Production Asset Sizes (Vite 6.4.4)
 - **HTML Shell (`dist/index.html`):** 1.34 kB (gzip: 0.68 kB)
@@ -93,6 +102,14 @@ During development, the developer was unable to obtain an ElevenLabs API key. In
 
 4. **Client Web Speech API (Browser Fallback):**  
    If the user has zero keys and is offline, the browser's native `window.speechSynthesis` takes over. We added Bengali voice detection (`speechSynthesis.getVoices().some(v => v.lang.startsWith('bn'))`) to alert the user if their device lacks a Bengali voice pack, recommending downloaded audio.
+
+5. **ElevenLabs Optional Top Tier & Voice Decision:**  
+   When the user provides an `ELEVENLABS_API_KEY`, ElevenLabs runs as the top-tier provider in `TTS_PROVIDER=auto`.  
+   - **Voice Selection:** Defaulted to library voice **"Anika"** (`jUjRbhZWoMK4aDciW36V`, listed language Hindi). Under the multilingual model `eleven_multilingual_v2`, Anika's phonetic model handles Bengali diacritics and compound consonants with high warmth and clarity.
+   - **Precedence Hierarchy:** `ELEVENLABS_VOICE_ID_BN` / `ELEVENLABS_VOICE_ID_EN` language overrides take precedence over general `ELEVENLABS_VOICE_ID`, falling back to `jUjRbhZWoMK4aDciW36V`.
+   - **Credit Protection:** Free accounts have 10,000 credits/month (~10 minutes). We engineered an in-memory soft cap at **8,000 characters** (`ELEVENLABS_MONTHLY_CHAR_CAP`) that automatically stops calling ElevenLabs and cascades to Gemini TTS once reached.
+   - **Library Voice 402/403 Handling:** If a free account encounters permission or subscription errors on library voices, the error clearly advises adding the voice via VoiceLab or selecting a default voice from `GET /v1/voices`.
+   - **Non-Secret Tooling:** Created `npm run tts:test` and `npm run demo:audio` so the developer can run voice synthesis locally without exposing API keys to coding agents or git history.
 
 ---
 

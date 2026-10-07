@@ -103,12 +103,13 @@ export function validateAndCorrectPlan(plan, guardrails, language = 'en') {
 ### 3. Open-Source LLM Adapter Pattern (`gemma_api` ↔ `ollama`)
 In `server/services/llm/adapter.js`, an adapter pattern supports both cloud inference via Google AI Studio (`gemma-4-26b-a4b-it`) and 100% offline edge execution via local **Ollama** (`gemma2:9b`). System constraints are injected directly into the user turn to honor Gemma's prompt contract, and outputs are sanitized defensively with automated markdown fence stripping and regex fallbacks.
 
-### 4. Zero-Cost Free TTS Provider Chain
-When building audio walk narration, commercial paid TTS services created an unnecessary cost barrier. We designed an automated fallback chain in `server/services/tts/index.js`:
-1. **Gemini 3.8 Flash TTS (`gemini-3.8-flash-tts`):** Reuses the user's existing Google AI Studio key (`GEMMA_API_KEY`). Generates 24 kHz studio-quality audio in English and Bengali (`bn-BD`). When encountering Google's free-tier 3 RPM quota limit, it handles backoff automatically.
-2. **Meta MMS-TTS (`facebook/mms-tts-ben` & `eng`):** Open-weight multilingual speech models running on Hugging Face Serverless Inference behind an optional `HF_TOKEN`.
-3. **Client Web Speech API:** Client-side zero-cloud fallback with automated Bengali voice detection.
-4. **Bundled Dhaka Audio:** 8 pre-generated audio clips committed into the repository and pre-cached by Service Worker v2, guaranteeing that judges and users can experience high-fidelity voice guidance with zero latency and zero keys.
+### 4. Cascading Multi-Tier TTS Provider Chain
+When building audio walk narration, we wanted maximum accessibility with optional studio voice quality. We designed an automated fallback chain in `server/services/tts/index.js`:
+1. **ElevenLabs TTS (Optional Top Tier):** Activated when an `ELEVENLABS_API_KEY` is provided in the environment. Uses `eleven_multilingual_v2` with library voice "Anika" (`jUjRbhZWoMK4aDciW36V`, supporting Hindi and Bengali phonemes, with optional `ELEVENLABS_VOICE_ID_BN` and `ELEVENLABS_VOICE_ID_EN` overrides). Includes a soft monthly character cap (8,000 chars) to safeguard free tier credits and automatically cascades on 401/402/403/429 errors. *(Audio attribution: "Voice by ElevenLabs" when active).*
+2. **Gemini 3.8 Flash TTS (`gemini-3.8-flash-tts`):** Reuses the user's existing Google AI Studio key (`GEMMA_API_KEY`). Generates 24 kHz studio-quality audio in English and Bengali (`bn-BD`). When encountering Google's free-tier 3 RPM quota limit, it handles backoff automatically.
+3. **Meta MMS-TTS (`facebook/mms-tts-ben` & `eng`):** Open-weight multilingual speech models running on Hugging Face Serverless Inference behind an optional `HF_TOKEN`.
+4. **Client Web Speech API:** Client-side zero-cloud fallback with automated Bengali voice detection.
+5. **Bundled Dhaka Audio:** 8 pre-generated audio clips committed into the repository and pre-cached by Service Worker v2, guaranteeing that judges and users can experience high-fidelity voice guidance with zero latency and zero keys.
 
 ### 5. Production Hardening on Render
 The application is deployed to Render using a declarative Blueprint ([`render.yaml`](https://github.com/SayemR0018/sobujGhonta/blob/main/render.yaml)):

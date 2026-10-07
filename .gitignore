@@ -1,7 +1,10 @@
 node_modules/
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+tmp/
+client/tmp/
+server/tmp/
 dist/
 client/dist/
 build/

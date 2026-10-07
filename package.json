@@ -11,7 +11,9 @@
     "build": "npm run build --workspace=client",
     "test": "node --test server/tests/**/*.test.js server/tests/*.js",
     "smoke": "node scripts/smoke.mjs",
-    "verify": "npm test && npm run build && npm run smoke"
+    "verify": "npm test && npm run build && npm run smoke",
+    "tts:test": "node scripts/testVoice.mjs",
+    "demo:audio": "node scripts/generateDemoAudio.mjs"
   },
   "workspaces": [
     "client"
