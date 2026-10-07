@@ -9,7 +9,9 @@ import {
   CheckCircle,
   Smartphone,
   X,
-  VolumeX
+  VolumeX,
+  AlertTriangle,
+  Info
 } from 'lucide-react';
 import { cacheAudioBlob, getCachedAudioBlob } from '../utils/db.js';
 import { setupMediaSession, updateMediaSessionPlaybackState } from '../utils/mediaSession.js';
@@ -21,11 +23,31 @@ export function AudioWalkPlayer({ walkScript = [], language = 'en', t }) {
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [isPocketMode, setIsPocketMode] = useState(false);
   const [audioError, setAudioError] = useState(null);
+  const [hasBengaliVoice, setHasBengaliVoice] = useState(true);
 
   const audioRef = useRef(null);
   const speechUtteranceRef = useRef(null);
 
   const currentSegment = walkScript[currentIndex] || null;
+
+  // Check available browser voices for Bengali support
+  useEffect(() => {
+    if (!('speechSynthesis' in window)) {
+      setHasBengaliVoice(false);
+      return;
+    }
+
+    const checkVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        const bnVoice = voices.some(v => v.lang.startsWith('bn'));
+        setHasBengaliVoice(bnVoice);
+      }
+    };
+
+    checkVoices();
+    window.speechSynthesis.onvoiceschanged = checkVoices;
+  }, []);
 
   // Sync Media Session on segment change or play state change
   useEffect(() => {
@@ -115,7 +137,29 @@ export function AudioWalkPlayer({ walkScript = [], language = 'en', t }) {
         return;
       }
 
-      // 2. Fetch from server ElevenLabs TTS proxy
+      // 2. Check bundled static demo audio if available
+      const staticDemoUrl = `/demo-audio/${language}_${currentIndex}.wav`;
+      try {
+        const demoRes = await fetch(staticDemoUrl, { method: 'HEAD' });
+        if (demoRes.ok) {
+          if (!audioRef.current) {
+            audioRef.current = new Audio();
+          }
+          audioRef.current.src = staticDemoUrl;
+          audioRef.current.onended = () => {
+            setIsPlaying(false);
+            updateMediaSessionPlaybackState('paused');
+          };
+          await audioRef.current.play();
+          setIsPlaying(true);
+          updateMediaSessionPlaybackState('playing');
+          return;
+        }
+      } catch {
+        // Fall through to server API
+      }
+
+      // 3. Fetch from server free TTS proxy
       const res = await fetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -130,7 +174,6 @@ export function AudioWalkPlayer({ walkScript = [], language = 'en', t }) {
       if (contentType.includes('application/json')) {
         const data = await res.json();
         if (data.fallbackToBrowser) {
-          // Fall back to Web Speech API
           playBrowserSpeech(currentSegment.text);
           return;
         }
@@ -156,7 +199,6 @@ export function AudioWalkPlayer({ walkScript = [], language = 'en', t }) {
       updateMediaSessionPlaybackState('playing');
     } catch (err) {
       console.warn('[Audio] Server TTS failed, falling back to browser speech:', err.message);
-      // Fallback to browser Web Speech API
       playBrowserSpeech(currentSegment.text);
     }
   };
@@ -191,15 +233,31 @@ export function AudioWalkPlayer({ walkScript = [], language = 'en', t }) {
 
         const existing = await getCachedAudioBlob(cacheKey);
         if (!existing) {
-          const res = await fetch('/api/tts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: seg.text, language })
-          });
+          // Check static demo audio first
+          let blob = null;
+          try {
+            const staticRes = await fetch(`/demo-audio/${language}_${i}.wav`);
+            if (staticRes.ok) {
+              blob = await staticRes.blob();
+            }
+          } catch {
+            // Static not found, fallback to API
+          }
 
-          const ctype = res.headers.get('content-type') || '';
-          if (!ctype.includes('application/json') && res.ok) {
-            const blob = await res.blob();
+          if (!blob) {
+            const res = await fetch('/api/tts', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ text: seg.text, language })
+            });
+
+            const ctype = res.headers.get('content-type') || '';
+            if (!ctype.includes('application/json') && res.ok) {
+              blob = await res.blob();
+            }
+          }
+
+          if (blob) {
             await cacheAudioBlob(cacheKey, blob);
           }
         }
@@ -207,7 +265,6 @@ export function AudioWalkPlayer({ walkScript = [], language = 'en', t }) {
       setIsDownloaded(true);
     } catch (err) {
       console.warn('Pre-download error:', err);
-      // Web speech will still work offline in browser
       setIsDownloaded(true);
     } finally {
       setIsDownloading(false);
@@ -241,6 +298,29 @@ export function AudioWalkPlayer({ walkScript = [], language = 'en', t }) {
         <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.85rem' }}>
           {t.audioWalkDesc}
         </p>
+
+        {/* Browser Bengali voice advisory if missing */}
+        {language === 'bn' && !hasBengaliVoice && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.45rem',
+              background: 'rgba(245, 158, 11, 0.12)',
+              border: '1px solid rgba(245, 158, 11, 0.4)',
+              borderRadius: '8px',
+              padding: '0.5rem 0.75rem',
+              marginBottom: '0.85rem',
+              fontSize: '0.78rem',
+              color: '#fbbf24'
+            }}
+          >
+            <AlertTriangle size={15} style={{ flexShrink: 0, marginTop: '2px' }} />
+            <span>
+              ব্রাউজারে বাংলা ভয়েস শনাক্ত হয়নি। অফলাইনে নিরবচ্ছিন্ন শ্রবণের জন্য নিচের বাটন দিয়ে অডিও ডাউনলোড করার পরামর্শ দেওয়া হচ্ছে।
+            </span>
+          </div>
+        )}
 
         {/* Current Segment Display */}
         <div
@@ -323,6 +403,16 @@ export function AudioWalkPlayer({ walkScript = [], language = 'en', t }) {
               </>
             )}
           </button>
+
+          {/* Screen lock notice */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: 'var(--text-dim)', justifyContent: 'center' }}>
+            <Info size={13} />
+            <span>
+              {language === 'bn'
+                ? 'ডাউনলোডকৃত অডিও ফোন লক থাকলেও পকেটে অবিরত চলবে।'
+                : 'Downloaded audio continues playing in pocket even when screen locks.'}
+            </span>
+          </div>
         </div>
       </div>
 

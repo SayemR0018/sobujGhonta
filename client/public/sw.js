@@ -1,11 +1,19 @@
-const CACHE_NAME = 'sobuj-ghonta-v1';
-const AUDIO_CACHE = 'sobuj-ghonta-audio-v1';
+const CACHE_NAME = 'sobuj-ghonta-v2';
+const AUDIO_CACHE = 'sobuj-ghonta-audio-v2';
 
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/leaf.svg'
+  '/leaf.svg',
+  '/demo-audio/en_0.wav',
+  '/demo-audio/en_1.wav',
+  '/demo-audio/en_2.wav',
+  '/demo-audio/en_3.wav',
+  '/demo-audio/bn_0.wav',
+  '/demo-audio/bn_1.wav',
+  '/demo-audio/bn_2.wav',
+  '/demo-audio/bn_3.wav'
 ];
 
 self.addEventListener('install', event => {
@@ -22,6 +30,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         keys.map(key => {
           if (key !== CACHE_NAME && key !== AUDIO_CACHE) {
+            console.log('[SW] Purging old cache:', key);
             return caches.delete(key);
           }
         })
@@ -33,17 +42,31 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // Audio caching for offline trail walks
+  // Demo audio requests — cache first, network fallback
+  if (url.pathname.startsWith('/demo-audio/')) {
+    event.respondWith(
+      caches.match(event.request).then(cached => {
+        if (cached) return cached;
+        return fetch(event.request).then(response => {
+          if (response && response.ok) {
+            const clone = response.clone();
+            caches.open(AUDIO_CACHE).then(cache => cache.put(event.request, clone));
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
+
+  // Audio synthesis endpoint for offline trail walks
   if (url.pathname.includes('/api/tts')) {
     event.respondWith(
       caches.open(AUDIO_CACHE).then(async cache => {
-        // For POST /api/tts requests, Cache API doesn't support POST keys directly,
-        // so offline pre-downloads store synthetic GET-keyed request entries or use IndexedDB.
         const response = await fetch(event.request.clone()).catch(() => null);
         if (response && response.ok) {
           return response;
         }
-        // If network failed, attempt match
         const cached = await cache.match(event.request.url);
         if (cached) return cached;
         throw new Error('Offline and audio not cached');

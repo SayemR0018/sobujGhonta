@@ -3,7 +3,7 @@ import { fetchWeatherData, searchCities } from '../services/weather.js';
 import { findNearbyGreenSpaces } from '../services/places.js';
 import { scoreForecastTimeline, calculateHourlyGreenWindowScore } from '../services/scoring.js';
 import { generateGreenPlan, describeNaturePhoto } from '../services/llm/adapter.js';
-import { synthesizeSpeech } from '../services/tts/elevenlabs.js';
+import { synthesizeSpeech } from '../services/tts/index.js';
 import {
   DHAKA_COORDINATES,
   DHAKA_PARKS,
@@ -141,18 +141,19 @@ apiRouter.post('/plan', async (req, res) => {
 });
 
 /**
- * ElevenLabs TTS synthesis proxy with content hash caching
+ * Free TTS synthesis proxy (Gemini 3.8 Flash TTS / Meta MMS-TTS / Browser fallback)
  */
 apiRouter.post('/tts', async (req, res) => {
   try {
-    const { text, voiceId, language = 'en' } = req.body;
+    const { text, voice, voiceId, language = 'en', provider } = req.body;
     const clientIp = req.ip || req.headers['x-forwarded-for'] || '127.0.0.1';
 
     const ttsResult = await synthesizeSpeech({
       text,
-      voiceId,
+      voice: voice || voiceId,
       language,
-      clientIp
+      clientIp,
+      providerOverride: provider
     });
 
     if (ttsResult.fallbackToBrowser) {

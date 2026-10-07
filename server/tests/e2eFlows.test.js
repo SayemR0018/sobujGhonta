@@ -1,7 +1,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { evaluateSafetyGuardrails, validateAndCorrectPlan } from '../services/guardrails.js';
-import { computeAudioHash } from '../services/tts/elevenlabs.js';
+import { computeAudioHash } from '../services/tts/index.js';
 import { DHAKA_SAMPLE_WEATHER, DHAKA_PARKS, DHAKA_PREGENERATED_PLAN_BN, DHAKA_PREGENERATED_PLAN_EN } from '../services/demoData.js';
 import { haversineDistanceMeters, walkingTimeMinutes } from '../services/places.js';
 
@@ -40,13 +40,13 @@ describe('End-to-End Edge Case & Flow Tests', () => {
 
   test('Audio hash caching is deterministic for duplicate text segments', () => {
     const text = 'Stow your phone in your pocket. Take a deep breath.';
-    const voiceId = '21m00Tcm4TlvDq8ikWAM';
+    const voice = 'Kore';
     const lang = 'en';
-    const model = 'eleven_multilingual_v2';
+    const provider = 'gemini';
 
-    const hash1 = computeAudioHash(text, voiceId, lang, model);
-    const hash2 = computeAudioHash(text, voiceId, lang, model);
-    const hashDifferentText = computeAudioHash(text + ' extra words', voiceId, lang, model);
+    const hash1 = computeAudioHash(text, voice, lang, provider);
+    const hash2 = computeAudioHash(text, voice, lang, provider);
+    const hashDifferentText = computeAudioHash(text + ' extra words', voice, lang, provider);
 
     assert.equal(hash1, hash2);
     assert.notEqual(hash1, hashDifferentText);
