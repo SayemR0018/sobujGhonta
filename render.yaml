@@ -7,6 +7,7 @@ services:
     buildCommand: npm install && npm run build
     startCommand: node server/index.js
     healthCheckPath: /health
+    autoDeploy: true
     envVars:
       - key: NODE_VERSION
         value: 20.18.0
@@ -17,14 +18,14 @@ services:
       - key: LLM_PROVIDER
         value: gemma_api
       - key: GEMMA_MODEL
-        value: gemma-3-27b-it
-      - key: TTS_PROVIDER
-        value: elevenlabs
-      - key: ELEVENLABS_VOICE_ID
-        value: 21m00Tcm4TlvDq8ikWAM
-      - key: ELEVENLABS_MODEL
-        value: eleven_multilingual_v2
+        value: gemma-4-26b-a4b-it
       - key: GEMMA_API_KEY
         sync: false
-      - key: ELEVENLABS_API_KEY
+      - key: TTS_PROVIDER
+        value: auto
+      - key: GEMINI_TTS_MODEL
+        value: gemini-3.8-flash-tts
+      - key: GEMINI_TTS_VOICE
+        value: Kore
+      - key: HF_TOKEN
         sync: false

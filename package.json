@@ -9,7 +9,9 @@
     "dev:server": "node --watch server/index.js",
     "dev:client": "npm run dev --workspace=client",
     "build": "npm run build --workspace=client",
-    "test": "node --test server/tests/**/*.test.js"
+    "test": "node --test server/tests/**/*.test.js server/tests/*.js",
+    "smoke": "node scripts/smoke.mjs",
+    "verify": "npm test && npm run build && npm run smoke"
   },
   "workspaces": [
     "client"
