@@ -12,27 +12,35 @@ export function LocationSearch({
   const [isSearching, setIsSearching] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
 
+  const [locationError, setLocationError] = useState(null);
+
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
 
     setIsSearching(true);
+    setLocationError(null);
     try {
       const res = await fetch(`/api/cities?query=${encodeURIComponent(searchQuery)}`);
       const data = await res.json();
       if (data.ok) {
         setSearchResults(data.cities || []);
+        if (data.cities?.length === 0) {
+          setLocationError(language === 'bn' ? 'কোনো শহর পাওয়া যায়নি।' : 'No matching city found.');
+        }
       }
     } catch (err) {
       console.warn('City search error:', err);
+      setLocationError(language === 'bn' ? 'অনুসন্ধানে সমস্যা হয়েছে। অনুগ্রহ করে পুনরায় চেষ্টা করুন।' : 'Search connection error. Please try again.');
     } finally {
       setIsSearching(false);
     }
   };
 
   const handleGetCurrentLocation = () => {
+    setLocationError(null);
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser.');
+      setLocationError(language === 'bn' ? 'আপনার ব্রাউজার লোকেশন সাপোর্ট করে না।' : 'Geolocation is not supported by your browser.');
       return;
     }
 
@@ -49,7 +57,11 @@ export function LocationSearch({
       (err) => {
         setIsLocating(false);
         console.warn('Geolocation error:', err.message);
-        alert(language === 'bn' ? 'অবস্থান শনাক্ত করা যায়নি।' : 'Unable to retrieve location.');
+        setLocationError(
+          language === 'bn'
+            ? 'অবস্থান শনাক্ত করা যায়নি (অনুমতি প্রত্যাখ্যান বা টাইমআউট)। অনুগ্রহ করে নিচের সার্চ বক্স ব্যবহার করুন।'
+            : 'Unable to retrieve location (permission denied or timeout). Please search your city below.'
+        );
       },
       { timeout: 10000, enableHighAccuracy: true }
     );
@@ -57,6 +69,38 @@ export function LocationSearch({
 
   return (
     <div className="card" style={{ marginBottom: '1rem' }}>
+      {locationError && (
+        <div
+          style={{
+            background: 'rgba(239, 68, 68, 0.15)',
+            border: '1px solid rgba(239, 68, 68, 0.4)',
+            borderRadius: '8px',
+            padding: '0.5rem 0.75rem',
+            marginBottom: '0.75rem',
+            fontSize: '0.8rem',
+            color: '#fca5a5',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <span>{locationError}</span>
+          <button
+            onClick={() => setLocationError(null)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#fca5a5',
+              cursor: 'pointer',
+              minHeight: '28px',
+              padding: '0 0.4rem',
+              fontSize: '1rem'
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <MapPin size={20} color="#4ade80" />

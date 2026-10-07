@@ -3,7 +3,7 @@ import { fetchWeatherData, searchCities } from '../services/weather.js';
 import { findNearbyGreenSpaces } from '../services/places.js';
 import { scoreForecastTimeline, calculateHourlyGreenWindowScore } from '../services/scoring.js';
 import { generateGreenPlan, describeNaturePhoto } from '../services/llm/adapter.js';
-import { synthesizeSpeech } from '../services/tts/index.js';
+import { synthesizeSpeech, MAX_CHARACTERS_PER_SEGMENT } from '../services/tts/index.js';
 import {
   DHAKA_COORDINATES,
   DHAKA_PARKS,
@@ -15,7 +15,23 @@ import {
 export const apiRouter = express.Router();
 
 /**
- * Health check endpoint for Render Blueprint monitoring
+ * Sanitizes and validates geographic coordinates
+ */
+function sanitizeCoords(rawLat, rawLon) {
+  const lat = parseFloat(rawLat);
+  const lon = parseFloat(rawLon);
+
+  const isValidLat = Number.isFinite(lat) && lat >= -90 && lat <= 90;
+  const isValidLon = Number.isFinite(lon) && lon >= -180 && lon <= 180;
+
+  return {
+    lat: isValidLat ? lat : DHAKA_COORDINATES.lat,
+    lon: isValidLon ? lon : DHAKA_COORDINATES.lon
+  };
+}
+
+/**
+ * Health check endpoint
  */
 apiRouter.get('/health', (req, res) => {
   res.json({
@@ -26,12 +42,12 @@ apiRouter.get('/health', (req, res) => {
 });
 
 /**
- * City search for location picker
+ * City search with input sanitization
  */
 apiRouter.get('/cities', async (req, res) => {
   try {
-    const query = req.query.query || '';
-    const results = await searchCities(String(query));
+    const rawQuery = String(req.query.query || '').trim().slice(0, 80);
+    const results = await searchCities(rawQuery);
     res.json({ ok: true, cities: results });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
@@ -43,8 +59,7 @@ apiRouter.get('/cities', async (req, res) => {
  */
 apiRouter.get('/weather', async (req, res) => {
   try {
-    const lat = parseFloat(req.query.lat) || DHAKA_COORDINATES.lat;
-    const lon = parseFloat(req.query.lon) || DHAKA_COORDINATES.lon;
+    const { lat, lon } = sanitizeCoords(req.query.lat, req.query.lon);
 
     const weatherData = await fetchWeatherData(lat, lon);
     const scoreResult = scoreForecastTimeline(weatherData.hourly, weatherData.daily);
@@ -85,8 +100,7 @@ apiRouter.get('/weather', async (req, res) => {
  */
 apiRouter.get('/places', async (req, res) => {
   try {
-    const lat = parseFloat(req.query.lat) || DHAKA_COORDINATES.lat;
-    const lon = parseFloat(req.query.lon) || DHAKA_COORDINATES.lon;
+    const { lat, lon } = sanitizeCoords(req.query.lat, req.query.lon);
 
     const result = await findNearbyGreenSpaces(lat, lon);
     res.json({
@@ -104,13 +118,14 @@ apiRouter.get('/places', async (req, res) => {
  */
 apiRouter.post('/plan', async (req, res) => {
   try {
-    const {
-      minutes = 30,
-      goal = 'calm',
-      language = 'en',
-      lat = DHAKA_COORDINATES.lat,
-      lon = DHAKA_COORDINATES.lon
-    } = req.body;
+    const rawMinutes = parseInt(req.body.minutes, 10);
+    const minutes = Number.isFinite(rawMinutes) ? Math.min(180, Math.max(5, rawMinutes)) : 30;
+
+    const validGoals = ['calm', 'exercise', 'birding', 'kids', 'elders'];
+    const goal = validGoals.includes(req.body.goal) ? req.body.goal : 'calm';
+    const language = req.body.language === 'bn' ? 'bn' : 'en';
+
+    const { lat, lon } = sanitizeCoords(req.body.lat, req.body.lon);
 
     const [weatherData, placesData] = await Promise.all([
       fetchWeatherData(lat, lon),
@@ -120,7 +135,7 @@ apiRouter.post('/plan', async (req, res) => {
     const scoreResult = scoreForecastTimeline(weatherData.hourly, weatherData.daily);
 
     const plan = await generateGreenPlan({
-      minutes: Number(minutes),
+      minutes,
       goal,
       language,
       weatherSummary: weatherData.current,
@@ -148,10 +163,21 @@ apiRouter.post('/tts', async (req, res) => {
     const { text, voice, voiceId, language = 'en', provider } = req.body;
     const clientIp = req.ip || req.headers['x-forwarded-for'] || '127.0.0.1';
 
+    if (!text || typeof text !== 'string' || !text.trim()) {
+      return res.status(400).json({ ok: false, error: 'Text parameter is required' });
+    }
+
+    if (text.trim().length > MAX_CHARACTERS_PER_SEGMENT) {
+      return res.status(400).json({
+        ok: false,
+        error: `Text exceeds maximum allowed length of ${MAX_CHARACTERS_PER_SEGMENT} characters`
+      });
+    }
+
     const ttsResult = await synthesizeSpeech({
-      text,
+      text: text.trim(),
       voice: voice || voiceId,
-      language,
+      language: language === 'bn' ? 'bn' : 'en',
       clientIp,
       providerOverride: provider
     });
@@ -186,12 +212,20 @@ apiRouter.post('/tts', async (req, res) => {
  */
 apiRouter.post('/journal/describe', async (req, res) => {
   try {
-    const { imageBase64, mimeType, noteText, language = 'en' } = req.body;
+    const { imageBase64, mimeType = 'image/jpeg', noteText = '', language = 'en' } = req.body;
+
+    if (imageBase64 && typeof imageBase64 === 'string' && imageBase64.length > 10 * 1024 * 1024) {
+      return res.status(400).json({ ok: false, error: 'Image exceeds maximum size of 10MB' });
+    }
+
+    const safeNote = String(noteText || '').slice(0, 1000);
+    const safeLang = language === 'bn' ? 'bn' : 'en';
+
     const descriptionResult = await describeNaturePhoto({
       imageBase64,
       mimeType,
-      userNote: noteText,
-      language
+      userNote: safeNote,
+      language: safeLang
     });
 
     res.json({ ok: true, ...descriptionResult });

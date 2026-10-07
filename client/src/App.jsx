@@ -32,9 +32,10 @@ export function App() {
 
   const t = translations[language] || translations.en;
 
-  // Persist language
+  // Persist language and update html lang attribute
   useEffect(() => {
     localStorage.setItem('sg_lang', language);
+    document.documentElement.lang = language === 'bn' ? 'bn' : 'en';
   }, [language]);
 
   // Register Service Worker for PWA & offline trail playback

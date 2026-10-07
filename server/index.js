@@ -1,5 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import { rateLimit } from 'express-rate-limit';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
@@ -10,32 +13,109 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Middlewares
-app.use(cors());
+// Trust reverse proxy (essential for Render and rate limiting)
+app.set('trust proxy', 1);
+
+// Security Headers with tailored Content Security Policy
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        mediaSrc: ["'self'", 'data:', 'blob:'],
+        connectSrc: [
+          "'self'",
+          'https://api.open-meteo.com',
+          'https://air-quality-api.open-meteo.com',
+          'https://geocoding-api.open-meteo.com',
+          'https://overpass-api.de',
+          'https://generativelanguage.googleapis.com',
+          'https://router.huggingface.co',
+          'https://api-inference.huggingface.co'
+        ]
+      }
+    },
+    crossOriginEmbedderPolicy: false
+  })
+);
+
+// Compression Middleware (Gzip & Brotli)
+app.use(compression());
+
+// CORS - scoped to same origin or app domains
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, curl, or same-origin)
+      if (!origin) return callback(null, true);
+      // Allow any localhost origin during dev, or Render domains
+      if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('.onrender.com')) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
+    credentials: true
+  })
+);
+
+// Body Parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Health Check
+// Health Check (Lightweight, 0 external API calls for Render Blueprint monitoring)
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     uptime: process.uptime(),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    environment: config.nodeEnv,
+    tts: config.ttsProvider,
+    llm: config.llmProvider
   });
 });
 
+// API Rate Limiting (120 requests per 15 mins per IP)
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    ok: false,
+    error: 'Too many requests from this IP. Please wait a few moments before trying again.'
+  }
+});
+
 // API Routes
-app.use('/api', apiRouter);
+app.use('/api', apiLimiter, apiRouter);
 
-// Production Static Serving
+// Production Static Asset Serving with Optimized Cache Headers
 const clientDistPath = path.resolve(__dirname, '../client/dist');
-app.use(express.static(clientDistPath));
 
-// SPA Fallback for client routing
+app.use(
+  express.static(clientDistPath, {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('index.html') || filePath.endsWith('sw.js')) {
+        // App Shell and Service Worker: never cache so updates take effect immediately
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      } else if (filePath.match(/\.(js|css|wav|svg|png|jpg|webp|woff2)$/)) {
+        // Immutable hashed assets and static audio clips: cache for 1 year
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    }
+  })
+);
+
+// SPA Fallback: Never shadow /api
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next();
   }
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.sendFile(path.join(clientDistPath, 'index.html'), err => {
     if (err) {
       res.status(200).send(`
@@ -62,12 +142,28 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start Server
+// Start Server with Graceful Shutdown
+let server = null;
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(config.port, '0.0.0.0', () => {
+  server = app.listen(config.port, '0.0.0.0', () => {
     console.log(`[Sobuj Ghonta] Server listening on http://0.0.0.0:${config.port}`);
     console.log(`[Sobuj Ghonta] Mode: ${config.nodeEnv} | LLM: ${config.llmProvider} | TTS: ${config.ttsProvider}`);
   });
+
+  const handleShutdown = signal => {
+    console.log(`[Sobuj Ghonta] ${signal} signal received. Closing HTTP server gracefully...`);
+    if (server) {
+      server.close(() => {
+        console.log('[Sobuj Ghonta] Server shut down cleanly.');
+        process.exit(0);
+      });
+    } else {
+      process.exit(0);
+    }
+  };
+
+  process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+  process.on('SIGINT', () => handleShutdown('SIGINT'));
 }
 
 export default app;

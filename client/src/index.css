@@ -196,3 +196,21 @@ input:focus, select:focus, textarea:focus {
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+/* Accessibility: Focus visible styling */
+:focus-visible {
+  outline: 2.5px solid var(--green-bright) !important;
+  outline-offset: 2px !important;
+}
+
+/* Accessibility: Reduced motion respect */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -57,6 +57,17 @@ export async function getAllJournalEntries() {
   });
 }
 
+export async function deleteJournalEntry(id) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('journal', 'readwrite');
+    const store = tx.objectStore('journal');
+    const request = store.delete(id);
+    request.onsuccess = () => resolve(true);
+    request.onerror = () => reject(request.error);
+  });
+}
+
 // Offline Audio Cache Operations
 export async function cacheAudioBlob(key, blob) {
   const db = await openDB();

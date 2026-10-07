@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Camera, Image, Sparkles, AlertCircle, Save, BookOpen, Trash2 } from 'lucide-react';
-import { saveJournalEntry, getAllJournalEntries } from '../utils/db.js';
+import { saveJournalEntry, getAllJournalEntries, deleteJournalEntry } from '../utils/db.js';
 
 export function NatureJournal({ t, language }) {
   const [entries, setEntries] = useState([]);
@@ -21,6 +21,15 @@ export function NatureJournal({ t, language }) {
       setEntries(data || []);
     } catch (err) {
       console.warn('Error loading journal entries:', err);
+    }
+  };
+
+  const handleDeleteEntry = async (id) => {
+    try {
+      await deleteJournalEntry(id);
+      await loadEntries();
+    } catch (err) {
+      console.warn('Failed to delete journal entry:', err);
     }
   };
 
@@ -293,6 +302,27 @@ export function NatureJournal({ t, language }) {
                     </div>
                   )}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteEntry(item.id)}
+                  style={{
+                    background: 'transparent',
+                    color: '#ef4444',
+                    border: 'none',
+                    padding: '0.4rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: '44px',
+                    minWidth: '44px',
+                    borderRadius: '8px'
+                  }}
+                  title="Delete entry"
+                  aria-label="Delete entry"
+                >
+                  <Trash2 size={16} />
+                </button>
               </div>
             ))}
           </div>

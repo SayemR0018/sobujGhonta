@@ -71,4 +71,23 @@ describe('Safety Guardrails Engine', () => {
     const words = corrected.walk_script[0].text.split(/\s+/);
     assert.equal(words.length <= 62, true);
   });
+
+  test('Apparent temp >= 38°C triggers extreme heat avoidance guardrail', () => {
+    const guardrails = evaluateSafetyGuardrails({ apparentTemp: 39.5, hour: 13 });
+    assert.equal(guardrails.flags.extremeHeat, true);
+    assert.equal(guardrails.flags.middaySun, true);
+
+    const corrected = validateAndCorrectPlan({}, guardrails, 'en');
+    assert.equal(corrected.health_notes.some(n => n.includes('Extreme thermal stress')), true);
+    assert.equal(corrected.health_notes.some(n => n.includes('avoid midday sun')), true);
+  });
+
+  test('Thunderstorm weather codes (95, 96, 99) trigger severe weather warning', () => {
+    for (const code of [95, 96, 99]) {
+      const guardrails = evaluateSafetyGuardrails({ weatherCode: code });
+      assert.equal(guardrails.flags.rainThunder, true);
+      const corrected = validateAndCorrectPlan({}, guardrails, 'en');
+      assert.equal(corrected.health_notes.some(n => n.includes('Thunderstorm/heavy rain warning')), true);
+    }
+  });
 });
