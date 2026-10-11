@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Node.js: 20.18.0](https://img.shields.io/badge/Node.js-20.18.0-blue.svg)](https://nodejs.org/)
 [![Live Demo](https://img.shields.io/badge/Render-Live%20Demo-brightgreen.svg)](https://sobujghonta.onrender.com/)
-[![Tests Passing](https://img.shields.io/badge/Tests-469%2F469%20Passing-success.svg)](TEST_READY.md)
+[![Tests Passing](https://img.shields.io/badge/Tests-469%2F469%20Passing-success.svg)](docs/TEST_READY.md)
 
 ![Sobuj Ghonta Cover](docs/cover.png)
 
@@ -237,6 +237,20 @@ Deploy with the declarative Blueprint (`render.yaml`):
    - **Start Command:** `node server/index.js`
    - **Health Check:** `/health`
 5. (Optional) Set secret environment variables (`GEMMA_API_KEY`, `TABPFN_TOKEN`, `SERPAPI_API_KEY`) in the Render environment dashboard. The app boots immediately in zero-key mode if none are set.
+
+## 📚 Documentation Index
+All extended architectural, verification, and compliance specifications reside in the [`docs/`](docs/) directory:
+
+- [Architecture & System Flow](docs/ARCHITECTURE.md) — Comprehensive technical architecture, pipelines, and sequence diagrams.
+- [Deployment Guide](docs/DEPLOY.md) — Render Blueprint configuration, environment variables, and health check monitoring.
+- [Secrets & Zero-Leak Model](docs/KEYS.md) — Safe credential management, ephemeral storage, and redaction protocols.
+- [Privacy Model](docs/PRIVACY.md) — Coordinate fuzzing, zero-telemetry policies, and on-device storage.
+- [Project Specification](docs/PROJECT.md) — Core requirements, invariants, and implementation contracts.
+- [Test Infrastructure](docs/TEST_INFRA.md) — 4-tier testing hierarchy, contract tests, and E2E scenarios.
+- [Verification Signoff](docs/TEST_READY.md) — Empirical evidence and test execution records.
+- [TabPFN Empirical Evaluation](docs/TABPFN_EVAL.md) — Multi-city quantile loss and uncertainty calibration results.
+- [V2 Audit & Verification Matrix](docs/AUDIT.md) — 35-feature traceability matrix.
+- [DEV Challenge Post Draft](docs/POST.md) — Full Hacktoberfest 2026 challenge submission article.
 
 ---
 

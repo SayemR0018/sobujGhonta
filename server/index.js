@@ -5,11 +5,12 @@ import compression from 'compression';
 import { rateLimit } from 'express-rate-limit';
 import path from 'node:path';
 import fs from 'node:fs';
-import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 import { apiRouter } from './routes/api.js';
 import { logger } from './services/logger.js';
+import { fetchWeatherData } from './services/weather.js';
+import { findNearbyGreenSpaces } from './services/places.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -98,27 +99,38 @@ app.use('/api', apiLimiter, apiRouter);
 
 // Production Static Asset Serving with Optimized Cache Headers
 const clientDistPath = path.resolve(__dirname, '../client/dist');
+const clientPublicPath = path.resolve(__dirname, '../client/public');
 const clientIndexPath = path.join(clientDistPath, 'index.html');
 
-// Automated build safeguard: if index.html is missing on startup, compile frontend
 if (!fs.existsSync(clientIndexPath) && process.env.NODE_ENV !== 'test') {
-  console.log('[Sobuj Ghonta] Notice: client/dist/index.html not found! Triggering automatic frontend build...');
-  try {
-    execSync('npm run build --workspace=client', { stdio: 'inherit' });
-    console.log('[Sobuj Ghonta] Frontend build completed successfully.');
-  } catch (buildErr) {
-    console.error('[Sobuj Ghonta] Failed to auto-build frontend:', buildErr.message);
-  }
+  console.log('[Sobuj Ghonta] Notice: client/dist/index.html not found. Express will serve fallback until client build completes.');
 }
 
+// Serve compiled client bundle
 app.use(
   express.static(clientDistPath, {
+    maxAge: '1y',
+    immutable: true,
+    index: 'index.html',
     setHeaders: (res, filePath) => {
       if (filePath.endsWith('index.html') || filePath.endsWith('sw.js')) {
         // App Shell and Service Worker: never cache so updates take effect immediately
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       } else if (filePath.match(/\.(js|css|wav|svg|png|jpg|webp|woff2)$/)) {
         // Immutable hashed assets and static audio clips: cache for 1 year
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    }
+  })
+);
+
+// Fallback serve client/public for static assets (e.g. manifest, icons, demo-audio)
+app.use(
+  express.static(clientPublicPath, {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('manifest.json') || filePath.endsWith('sw.js')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      } else if (filePath.match(/\.(js|css|wav|svg|png|jpg|webp|woff2)$/)) {
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
       }
     }
@@ -165,6 +177,16 @@ if (process.env.NODE_ENV !== 'test') {
   server = app.listen(config.port, '0.0.0.0', () => {
     console.log(`[Sobuj Ghonta] Server listening on http://0.0.0.0:${config.port}`);
     console.log(`[Sobuj Ghonta] Mode: ${config.nodeEnv} | LLM: ${config.llmProvider} | TTS: ${config.ttsProvider}`);
+
+    // Asynchronously pre-warm caches for default Dhaka coordinates (zero cold latency for initial user)
+    setTimeout(() => {
+      fetchWeatherData(23.74, 90.40).catch(err => {
+        logger.warn('[Warmup] Initial weather cache warming notice:', err.message);
+      });
+      findNearbyGreenSpaces(23.74, 90.40).catch(err => {
+        logger.warn('[Warmup] Initial places cache warming notice:', err.message);
+      });
+    }, 150);
   });
 
   const handleShutdown = signal => {

@@ -6,7 +6,8 @@
 
 import { config } from '../config.js';
 
-const SIDECAR_TIMEOUT_MS = 2500;
+const SIDECAR_TIMEOUT_MS = 800;
+let sidecarOfflineUntil = 0;
 export const MODEL_LABEL_BASELINE = 'baseline (not TabPFN)';
 
 /**
@@ -262,8 +263,8 @@ export const mlClient = {
    * Generates quantile forecasts [p10, p50, p90] for weather and air quality metrics.
    */
   async getForecast({ lat, lon, history, horizonHours = 24, token = null }) {
-    // If TABPFN_MODE is explicitly off, use deterministic baseline directly
-    if (config.tabpfnMode === 'off') {
+    // If TABPFN_MODE is off or sidecar is marked offline, use deterministic baseline directly
+    if (config.tabpfnMode === 'off' || Date.now() < sidecarOfflineUntil) {
       return this.executeDeterministicFallback(history, horizonHours);
     }
 
@@ -301,6 +302,8 @@ export const mlClient = {
       const data = await res.json();
       return data;
     } catch (err) {
+      // Trip circuit breaker for 5 minutes so subsequent requests don't hang
+      sidecarOfflineUntil = Date.now() + 5 * 60 * 1000;
       // Seamlessly cascade to deterministic baseline labeled "baseline (not TabPFN)"
       return this.executeDeterministicFallback(history, horizonHours);
     }
@@ -310,7 +313,7 @@ export const mlClient = {
    * Evaluates current readings against historical distribution for anomalies.
    */
   async checkAnomaly({ current, history, city = 'your area' }) {
-    if (config.tabpfnMode === 'off') {
+    if (config.tabpfnMode === 'off' || Date.now() < sidecarOfflineUntil) {
       return detectLocalAnomaly(current, history, city);
     }
 
@@ -334,6 +337,8 @@ export const mlClient = {
 
       return await res.json();
     } catch (err) {
+      // Trip circuit breaker for 5 minutes
+      sidecarOfflineUntil = Date.now() + 5 * 60 * 1000;
       return detectLocalAnomaly(current, history, city);
     }
   },

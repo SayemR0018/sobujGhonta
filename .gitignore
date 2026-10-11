@@ -21,6 +21,21 @@ ml/.venv/
 __pycache__/
 *.pyc
 
+# Local caches, test coverage & editor configurations
+.pytest_cache/
+.coverage
+htmlcov/
+coverage/
+test-results/
+*.log
+.DS_Store
+.vscode/
+.idea/
+*.tmp
+*.bak
+.eslintcache
+*.local
+
 # Test directories & test files (prevent secret scanner false positives from mock tokens)
 tests/
 server/tests/
@@ -28,4 +43,3 @@ ml/tests/
 *.test.js
 *.test.mjs
 *.test.py
-

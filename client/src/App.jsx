@@ -23,6 +23,76 @@ import { SettingsView } from './components/SettingsView.jsx';
 import { LocationSearch } from './components/LocationSearch.jsx';
 import { translations } from './i18n/translations.js';
 
+const INITIAL_DHAKA_SPACES = [
+  {
+    id: 'ramna_park',
+    name: 'Ramna Park',
+    nameBn: 'রমনা পার্ক',
+    type: 'park',
+    lat: 23.7388,
+    lon: 90.3995,
+    distanceMeters: 450,
+    walkTimeMinutes: 6,
+    description: 'Historic botanical sanctuary featuring centuries-old banyan and rain trees surrounding a tranquil lake.',
+    descriptionBn: 'শতবর্ষী বট ও রেইনট্রি সমৃদ্ধ ঐতিহাসিক উদ্যান এবং নির্মল লেক।'
+  },
+  {
+    id: 'suhrawardy_udyan',
+    name: 'Suhrawardy Udyan',
+    nameBn: 'সোহরাওয়ার্দী উদ্যান',
+    type: 'park',
+    lat: 23.7335,
+    lon: 90.3975,
+    distanceMeters: 850,
+    walkTimeMinutes: 11,
+    description: 'Expansive historic park with open green lawns and shaded seating beneath neem and eucalyptus trees.',
+    descriptionBn: 'বিশাল সবুজ প্রান্তর এবং নিম ও ইউক্যালিপটাস গাছের স্নিগ্ধ ছায়া।'
+  },
+  {
+    id: 'dhanmondi_lake',
+    name: 'Dhanmondi Lake Park',
+    nameBn: 'ধানমন্ডি লেক পার্ক',
+    type: 'lakeside',
+    lat: 23.7465,
+    lon: 90.3755,
+    distanceMeters: 1800,
+    walkTimeMinutes: 24,
+    description: 'Winding waterfront promenade around Dhanmondi Lake shaded by weeping willows and lotus ponds.',
+    descriptionBn: 'লেকের পাড় ঘেঁষে আঁকাবাঁকা হাঁটার পথ এবং পদ্মপুকুরের শান্ত পরিবেশ।'
+  }
+];
+
+const INITIAL_DHAKA_WEATHER = {
+  ok: true,
+  current: {
+    score: 78,
+    category: 'good',
+    categoryBn: 'অনুকূল',
+    temperature: 28.5,
+    apparentTemp: 31.0,
+    aqi: 68,
+    pm25: 22.0,
+    uv: 1.5,
+    precipProb: 5,
+    weatherDesc: 'Optimal daylight and calm thermal conditions for mindful walking.',
+    weatherDescBn: 'পরিচ্ছন্ন বাতাস ও অনুকূল সূর্যের মৃদু আলো।'
+  },
+  bestWindow: {
+    hour: 16,
+    time: '4:00 PM',
+    score: 82,
+    category: 'optimal',
+    categoryBn: 'সর্বোত্তম'
+  },
+  timeline: [
+    { hour: 14, time: '2:00 PM', score: 62, apparentTemp: 33, aqi: 75, uv: 5 },
+    { hour: 15, time: '3:00 PM', score: 70, apparentTemp: 32, aqi: 70, uv: 3 },
+    { hour: 16, time: '4:00 PM', score: 82, apparentTemp: 30, aqi: 65, uv: 2 },
+    { hour: 17, time: '5:00 PM', score: 85, apparentTemp: 29, aqi: 62, uv: 1 },
+    { hour: 18, time: '6:00 PM', score: 76, apparentTemp: 28, aqi: 72, uv: 0 }
+  ]
+};
+
 export function App() {
   // Navigation State (6 views: home, timeline, places, walk, journal, settings)
   const [activeView, setActiveView] = useState('home');
@@ -42,15 +112,15 @@ export function App() {
   const [isOnline, setIsOnline] = useState(() => navigator.onLine);
   const [toastMessage, setToastMessage] = useState(null);
 
-  // Environmental Telemetry State
+  // Environmental Telemetry State (Pre-populated for instant paint)
   const [coordinates, setCoordinates] = useState({
     lat: 23.74,
     lon: 90.40,
     name: 'Dhaka (Ramna)'
   });
-  const [weatherData, setWeatherData] = useState(null);
-  const [greenSpaces, setGreenSpaces] = useState([]);
-  const [selectedSpace, setSelectedSpace] = useState(null);
+  const [weatherData, setWeatherData] = useState(INITIAL_DHAKA_WEATHER);
+  const [greenSpaces, setGreenSpaces] = useState(INITIAL_DHAKA_SPACES);
+  const [selectedSpace, setSelectedSpace] = useState(INITIAL_DHAKA_SPACES[0]);
 
   // Walk Planning State
   const [minutes, setMinutes] = useState(30);
