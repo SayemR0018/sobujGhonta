@@ -14,5 +14,9 @@ server/cache/audio/*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.DS_Store
 Thumbs.db
+.agents/
+.venv/
+ml/.venv/
+__pycache__/
+*.pyc

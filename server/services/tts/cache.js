@@ -15,7 +15,7 @@ export const DEMO_AUDIO_DIRS = [
 const ipRateLimits = new Map();
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 const MAX_REQUESTS_PER_WINDOW = 30;
-export const MAX_CHARACTERS_PER_SEGMENT = 600;
+export const MAX_CHARACTERS_PER_SEGMENT = 450;
 
 /**
  * Checks sliding-window per-IP rate limit
