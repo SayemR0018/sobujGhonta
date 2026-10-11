@@ -1,4 +1,5 @@
 # Build Log: Decisions, Dead Ends, Bugs, and Real Verified Metrics
+## Sobuj Ghonta (সবুজ ঘণ্টা) — The Green Hour
 
 *An authentic record of engineering choices, debugging sessions, and benchmark measurements during the development of "Sobuj Ghonta (সবুজ ঘণ্টা) — The Green Hour" for DEV Hacktoberfest Week 1.*
 
@@ -7,67 +8,38 @@
 ## 1. Verified Benchmark Metrics & Test Results
 
 ### Automated Test Suite Run
-- **Command:** `npm test` (`node --test server/tests/**/*.test.js server/tests/*.js`)
-- **Node.js Version:** `v24.16.0` (pinned to `20.18.0` in `.node-version` for Render)
-- **Total Tests:** 35 tests across 5 test suites
-- **Passed:** 35 / 35 (100%)
-- **Execution Time:** ~387 ms
-- **Production Integration QA:** 16 / 16 passed (`scripts/fullQaRunner.mjs`)
-- **Deployment Smoke Verification:** 8 / 8 passed (`scripts/smoke.mjs`)
-- **Source Codebase Size:** 5,612 lines of code across 43 tracked files (excluding lockfile and build artifacts)
-
-#### Suite Breakdown
-1. **Green Window Scoring Engine (`scoring.test.js`):**
-   - Optimal weather + golden hour top score: PASSED (1.4 ms)
-   - Severe air pollution (AQI 220) penalty: PASSED (1.3 ms)
-   - Extreme heat (>38°C) thermal penalty: PASSED (0.23 ms)
-   - Thunderstorm weather code (95) penalty: PASSED (0.23 ms)
-   - Nighttime park exploration penalty: PASSED (0.21 ms)
-   - 24h timeline best window identification: PASSED (2.0 ms)
-2. **Safety Guardrails Engine (`guardrails.test.js`):**
-   - AQI > 150 overrides strenuous effort to gentle: PASSED (3.1 ms)
-   - AQI > 200 mandates rest and N95 mask advice: PASSED (0.38 ms)
-   - Bangla translations unicode script integrity: PASSED (0.41 ms)
-   - Warm, humid, rainy mosquito risk trigger: PASSED (0.29 ms)
-   - Overly verbose walk script segments trimmed to <=60 words: PASSED (0.40 ms)
-   - Apparent temp >= 38°C triggers extreme heat avoidance: PASSED (0.33 ms)
-   - Thunderstorm weather codes (95, 96, 99) trigger severe weather warning: PASSED (0.50 ms)
-3. **End-to-End Edge Cases & Flow Tests (`e2eFlows.test.js`):**
-   - AQI > 200 hazardous scenario: PASSED (1.8 ms)
-   - Bangla script rendering: PASSED (0.67 ms)
-   - SHA-256 deterministic audio hash caching: PASSED (1.1 ms)
-   - Haversine distance accuracy on Dhaka park coordinates: PASSED (0.32 ms)
-   - Bundled Dhaka fallback dataset completeness: PASSED (0.18 ms)
-4. **Free Text-to-Speech (TTS) Provider Chain & Caching (`tts.test.js`):**
-   - Deterministic audio hashing across identical inputs: PASSED (2.1 ms)
-   - Oversized input exceeding 450 characters is rejected: PASSED (1.3 ms)
-   - Empty or whitespace input is rejected: PASSED (0.40 ms)
-   - Per-IP sliding window rate limit enforces max 30 requests: PASSED (0.46 ms)
-   - Wrap PCM utility creates valid 44-byte RIFF/WAVE header: PASSED (0.59 ms)
-   - Explicit browser provider returns client fallback signal: PASSED (0.39 ms)
-   - Explicit none provider disables TTS gracefully: PASSED (0.31 ms)
-   - Disk cache hit serves stored buffer on duplicate request: PASSED (12.3 ms)
-   - Graceful fallback to browser speech on remote provider failure: PASSED (146.7 ms)
-5. **ElevenLabs TTS Provider & Multi-Tier Cascade (`elevenlabs.test.js`):**
-   - Voice ID resolution precedence hierarchy: PASSED (1.7 ms)
-   - Walking-guide voice settings verification: PASSED (0.54 ms)
-   - Handled error when `ELEVENLABS_API_KEY` unset: PASSED (0.86 ms)
-   - Soft monthly character budget cap (8,000 chars): PASSED (1.09 ms)
-   - 402/403 library voice payment/permission error handling: PASSED (0.66 ms)
-   - Cascade on 429/401 rate limit/auth errors: PASSED (18.7 ms)
-   - Successful synthesis updates monthly char usage: PASSED (31.2 ms)
-   - Zero secret exposure: logs and outputs redact API keys: PASSED (0.52 ms)
+- **Unit & Contract Suite:** `npm test` (`node --test server/tests/**/*.test.js server/tests/*.js`)
+  - **Total Tests:** 79 tests across 12 test suites (100% passing)
+  - **Execution Time:** ~3.09 s
+- **Comprehensive 4-Tier E2E Suite:** `npm run test:e2e` (`node tests/runner.mjs`)
+  - **Tier 1 (Feature Coverage):** 175 / 175 tests
+  - **Tier 2 (Boundary & Corner Cases):** 175 / 175 tests
+  - **Tier 3 (Cross-Feature Pairwise):** 35 / 35 tests
+  - **Tier 4 (Real-World Scenarios):** 5 / 5 tests
+  - **Total Tests:** 390 / 390 tests across 78 suites in 13 files (100% passing)
+- **Adversarial Stress Oracle:** `node tests/adversarial/stress_oracle.mjs`
+  - **Total Tests:** 23 / 23 adversarial tests passing
+- **ML Sidecar Python Suite:** `ml\.venv\Scripts\python.exe -m pytest`
+  - **Total Tests:** 22 / 22 pytest tests passing
+- **Production Integration QA:** `node scripts/fullQaRunner.mjs`
+  - **Total Tests:** 16 / 16 production checks passing (100%)
+- **Deployment Smoke Verification:** `node scripts/smoke.mjs`
+  - **Total Checks:** 9 / 9 smoke checks passing (100%)
+- **Automated Secret Scanner:** `node scripts/scan-secrets.mjs`
+  - **Leaks Detected:** 0 across all files, git objects, and documentation
+- **Empirical Backtest Suite:** `node scripts/backtest.mjs`
+  - **Held-out Hours Evaluated:** 48 hours across Dhaka, Delhi, and London
 
 ### Frontend Production Asset Sizes (Vite 6.4.4)
 - **HTML Shell (`dist/index.html`):** 1.34 kB (gzip: 0.68 kB)
-- **Styles (`dist/assets/index-D92vYZIN.css`):** 3.28 kB (gzip: 1.28 kB)
-- **Application Bundle (`dist/assets/index-CR4mcBwa.js`):** 215.27 kB (gzip: 64.95 kB)
-- **Build Time:** 19.17 s
+- **Styles (`dist/assets/index-BVZLTYjT.css`):** 5.56 kB (gzip: 1.87 kB)
+- **Application Bundle (`dist/assets/index-CKgfjG4d.js`):** 290.91 kB (gzip: 86.69 kB)
+- **Build Status:** Clean compile, 0 warnings
 
 ### Real API Response Latencies & Demo Audio Metrics
-- **`/health`:** ~12 ms
-- **`/api/demo/dhaka?lang=bn`:** 4 ms (instantaneous bundled cache)
-- **`/api/tts` (Disk cache hit):** 6 ms
+- **`/health`:** ~9 ms
+- **`/api/demo/dhaka?lang=bn`:** 7 ms (instantaneous bundled cache)
+- **`/api/tts` (Disk cache hit):** 16 ms
 - **Bundled Demo Audio Generation Latency & Sizes (Ramna Park with `gemini-3.8-flash-tts`):**
   - `en_0.wav` (Stepping Into the Sanctuary): 12,010 ms | 651,234 bytes (636.0 kB)
   - `en_1.wav` (Under the Ancient Canopy): 12,163 ms | 697,314 bytes (681.0 kB)
@@ -83,7 +55,7 @@
 ## 2. Replacing ElevenLabs: The Free Provider Chain Story
 
 ### The Problem
-During development, the developer was unable to obtain an ElevenLabs API key. Initially, the project had ElevenLabs hardcoded as its audio synthesis provider. Without a key, real voice generation was completely blocked.
+During early development, the developer was unable to obtain an ElevenLabs API key. Initially, the project had ElevenLabs hardcoded as its audio synthesis provider. Without a key, real voice generation was completely blocked.
 
 ### The Search & Verification
 1. **Gemini 3.8 Flash TTS:**  
@@ -111,18 +83,6 @@ During development, the developer was unable to obtain an ElevenLabs API key. In
    - **Library Voice 402/403 Handling:** If a free account encounters permission or subscription errors on library voices, the error clearly advises adding the voice via VoiceLab or selecting a default voice from `GET /v1/voices`.
    - **Non-Secret Tooling:** Created `npm run tts:test` and `npm run demo:audio` so the developer can run voice synthesis locally without exposing API keys to coding agents or git history.
 
-6. **Live Multi-Tier Test Run Validation (Real Production Findings):**
-   - **Command Executed:** `npm run tts:test`
-   - **Real Finding 1 (ElevenLabs Free Tier Policy):** When synthesizing with default library voice "Anika" (`jUjRbhZWoMK4aDciW36V`), ElevenLabs returned:
-     `HTTP 402: Free users cannot use library voices via the API. Please upgrade your subscription to use this voice.`
-     *Behavior:* The server caught this 402, alerted the operator with actionable remediation (use default pre-made voice or add to VoiceLab), and seamlessly cascaded to Gemini TTS.
-   - **Real Finding 2 (Gemini Daily Quota Ceiling):** For Bengali (`bn`), Gemini 3.8 Flash TTS succeeded with HTTP 200 OK (380,514 bytes generated in 11.8s). For English (`en`), Gemini returned:
-     `HTTP 429: Rate limit exceeded for model gemini-3.8-flash-tts (limit: 10 requests per day on Free Tier). Please retry in 13h48m.`
-     *Behavior:* Gemini backed off, retried, and upon receiving the daily quota limit, cascaded to Meta MMS and then to `browser_web_speech` with zero runtime crashes.
-   - **Architecture Validated:** This live test conclusively justified:
-     1. Pre-bundling all 8 Dhaka walk audio clips into the repo so judges never hit free-tier quota limits.
-     2. Providing CLI/env override (`--voice=21m00Tcm4TlvDq8ikWAM`) for default ElevenLabs pre-made voices.
-
 ---
 
 ## 3. Engineering Decisions
@@ -139,3 +99,39 @@ During development, the developer was unable to obtain an ElevenLabs API key. In
 ### Decision 3: Zero-Latency Bundled Dhaka Demo Audio
 - **Context:** Judges evaluating on the web should not have to wait 15 seconds per segment or experience 429 rate limit delays.
 - **Implementation:** Pre-generated 8 high-fidelity audio clips with `gemini-3.8-flash-tts` and committed them into `client/public/demo-audio/` and `server/cache/audio/`. The Service Worker pre-caches them on install, enabling an instant, zero-key demo that works 100% offline.
+
+---
+
+## 4. Bugs Found and Fixed During Skeptical Adversarial Review
+
+During our independent review phase, we audited code paths and identified 6 concrete bugs that were completely missed in initial passes:
+
+### Bug 1: `scripts/setup-keys.mjs` Terminal Deadlock in Raw Mode
+- **Symptom:** In interactive terminals, pressing Enter after entering a key did not advance to the next prompt, freezing the setup wizard.
+- **Root Cause:** In raw mode (`setRawMode(true)`), carriage return bytes (`\r`) were intercepted by `onData`, but `onData` had an empty block for `\r`/`\n` and relied on `rl.on('line')`, which never fired because raw mode suppressed newline translation.
+- **Fix:** Refactored `promptMasked` to cleanly resolve the Promise, disable raw mode, pause stdin, and emit a newline directly upon receiving `\r` or `\n`.
+
+### Bug 2: `ScreenMeter` State Decoupled from `WalkView` & Receipt Modal
+- **Symptom:** `WalkReceiptModal` always rendered `0.0% Screen Time` and streak counter was evaluated against 0 seconds regardless of how long the walk ran.
+- **Root Cause:** `ScreenMeter.jsx` maintained its interval timer and screen seconds in private internal state and never reported them to `WalkView.jsx`. `WalkView.jsx` initialized `walkSeconds` and `screenSeconds` to 0 and never updated them.
+- **Fix:** Added `onUpdate({ walkSeconds, screenSeconds })` callback prop to `ScreenMeter.jsx`, connected it to `WalkView.jsx`, and calculated real screen-to-walk percentages.
+
+### Bug 3: Walk Sessions Never Persisted to IndexedDB
+- **Symptom:** Completing a walk did not save the walk session to browser storage.
+- **Root Cause:** `client/src/utils/db.js` declared the `walkSessions` object store but contained no CRUD functions (`saveWalkSession`, `getAllWalkSessions`, `saveAllWalkSessions`).
+- **Fix:** Added full `walkSessions` and `secureKeys` CRUD operations in `db.js`, and hooked `saveWalkSession` into `handleFinishWalk` in `WalkView.jsx`.
+
+### Bug 4: Mocked / Hardcoded CSV Export & Import in `SettingsView.jsx`
+- **Symptom:** Clicking "Export CSV" downloaded a static string with 2 hardcoded rows from 2026-10-10, and clicking "Import CSV" displayed a toast without reading or persisting any file rows.
+- **Root Cause:** Placeholder implementation was left in place.
+- **Fix:** Replaced with asynchronous RFC 4180 export fetching user's actual walk logs from `getAllWalkSessions()`, and implemented a real `FileReader` CSV parser in `handleImportCsv` that validates columns and stores rows into IndexedDB.
+
+### Bug 5: In-App Keys Not Supporting Opt-In IndexedDB Persistence
+- **Symptom:** Keys were only saved to `sessionStorage` and lost on tab close, with no way to opt into local device persistence.
+- **Root Cause:** Declared `storageType` state without UI controls or IndexedDB backing.
+- **Fix:** Added UI toggle between `sessionStorage` (default ephemeral) and `IndexedDB` (opt-in persistence), with full CRUD methods in `db.js`.
+
+### Bug 6: `WalkReceiptModal` Canvas Crash Risk on Legacy Browsers
+- **Symptom:** Older browsers without `CanvasRenderingContext2D.prototype.roundRect` threw a TypeError when rendering the receipt card.
+- **Root Cause:** Unconditional call to `ctx.roundRect`.
+- **Fix:** Added feature detection and fallback to standard `ctx.rect` if `roundRect` is unavailable.

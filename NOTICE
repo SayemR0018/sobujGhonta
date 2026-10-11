@@ -1,0 +1,56 @@
+Sobuj Ghonta (সবুজ ঘণ্টা) — The Green Hour
+Copyright (c) 2026 Sayem Rahman
+
+This product includes software and models developed by third parties:
+
+========================================================================
+Prior Labs TabPFN (Tabular Prior-data Fitted Network)
+========================================================================
+Copyright (c) Prior Labs GmbH
+Website: https://priorlabs.ai
+Docs: https://docs.priorlabs.ai
+Repository: https://github.com/priorlabs/TabPFN
+
+This project integrates Prior Labs TabPFN foundation models for in-context
+tabular time-series forecasting, uncertainty quantification (p10, p50, p90
+quantiles), and environmental anomaly detection.
+TabPFN weights and inference algorithms are licensed for non-commercial research
+and evaluation under the Prior Labs TabPFN License v1.0 / Apache 2.0.
+
+========================================================================
+Google Gemma Open Models & Gemini API
+========================================================================
+Copyright (c) Google LLC
+Licensed under the Gemma Terms of Use.
+Website: https://ai.google.dev
+
+========================================================================
+Open-Meteo Weather & Air Quality API
+========================================================================
+Open-Meteo weather and air quality data is provided under CC BY 4.0.
+Website: https://open-meteo.com
+
+========================================================================
+OpenStreetMap (Overpass API)
+========================================================================
+Map data (c) OpenStreetMap contributors, ODbL 1.0.
+Website: https://www.openstreetmap.org/copyright
+
+========================================================================
+ElevenLabs Text-to-Speech API
+========================================================================
+Copyright (c) ElevenLabs Inc.
+Website: https://elevenlabs.io
+
+========================================================================
+SerpApi & Serper.dev Search Adapters
+========================================================================
+Copyright (c) SerpApi LLC & Serper
+Websites: https://serpapi.com | https://serper.dev
+
+========================================================================
+Meta Massively Multilingual Speech (MMS)
+========================================================================
+Copyright (c) Meta Platforms, Inc.
+Licensed under CC BY-NC 4.0.
+Website: https://huggingface.co/facebook/mms-tts
