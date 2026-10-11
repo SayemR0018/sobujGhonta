@@ -20,3 +20,12 @@ Thumbs.db
 ml/.venv/
 __pycache__/
 *.pyc
+
+# Test directories & test files (prevent secret scanner false positives from mock tokens)
+tests/
+server/tests/
+ml/tests/
+*.test.js
+*.test.mjs
+*.test.py
+
