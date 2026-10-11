@@ -198,6 +198,15 @@ async function runSmokeTests() {
     }
   });
 
+  // 9. Search Heads-Up endpoint
+  await check('GET /api/search/heads-up (Search Heads-Up Endpoint)', async () => {
+    const res = await fetch(`${BASE_URL}/api/search/heads-up?city=dhaka`);
+    if (!res.ok) throw new Error(`Status ${res.status}`);
+    const json = await res.json();
+    if (!json.ok) throw new Error(`API returned ok=false: ${json.error}`);
+    if (!json.headsUp || !json.headsUp.text) throw new Error('Missing headsUp in response');
+  });
+
   console.log(`\n================ SMOKE SUMMARY ================`);
   console.log(`Passed: ${passed} / ${passed + failed}`);
   console.log(`Failed: ${failed}`);

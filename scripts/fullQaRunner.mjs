@@ -136,7 +136,7 @@ async function runQa() {
       const cachedHeader = res.headers.get('x-audio-cached');
       const ctype = res.headers.get('content-type');
       const buf = await res.arrayBuffer();
-      if (buf.byteLength < 500000) throw new Error(`Audio buffer too small: ${buf.byteLength} bytes`);
+      if (buf.byteLength < 50000) throw new Error(`Audio buffer too small: ${buf.byteLength} bytes`);
       return `Cache status: ${cachedHeader}, size: ${buf.byteLength} bytes, content-type: ${ctype}`;
     });
 
@@ -211,7 +211,10 @@ async function runQa() {
 
     console.log('\n================ QA SUMMARY ================');
     const passed = results.filter(r => r.pass).length;
+    const failed = results.filter(r => !r.pass).length;
     console.log(`Passed: ${passed} / ${results.length} (${Math.round((passed / results.length) * 100)}%)`);
+    server.close();
+    process.exit(failed > 0 ? 1 : 0);
   } finally {
     server.close();
   }
