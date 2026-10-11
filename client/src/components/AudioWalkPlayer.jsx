@@ -160,9 +160,13 @@ export function AudioWalkPlayer({ walkScript = [], language = 'en', t }) {
       }
 
       // 3. Fetch from server free TTS proxy
+      const ttsHeaders = { 'Content-Type': 'application/json' };
+      const elKey = sessionStorage.getItem('sg_key_elevenlabs');
+      if (elKey) ttsHeaders['x-elevenlabs-key'] = elKey;
+
       const res = await fetch('/api/tts', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: ttsHeaders,
         body: JSON.stringify({
           text: currentSegment.text,
           language
@@ -245,9 +249,13 @@ export function AudioWalkPlayer({ walkScript = [], language = 'en', t }) {
           }
 
           if (!blob) {
+            const dlHeaders = { 'Content-Type': 'application/json' };
+            const elKey = sessionStorage.getItem('sg_key_elevenlabs');
+            if (elKey) dlHeaders['x-elevenlabs-key'] = elKey;
+
             const res = await fetch('/api/tts', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: dlHeaders,
               body: JSON.stringify({ text: seg.text, language })
             });
 

@@ -1,21 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Smartphone, Footprints, ShieldCheck } from 'lucide-react';
 
-export function ScreenMeter({ isWalkActive = true, walkDurationMinutes = 30, t, language }) {
+export function ScreenMeter({ isWalkActive = true, walkDurationMinutes = 30, t, language, onUpdate }) {
   const [screenSeconds, setScreenSeconds] = useState(0);
   const [walkElapsedSeconds, setWalkElapsedSeconds] = useState(0);
 
   useEffect(() => {
-    let lastVisibleTime = Date.now();
     let isVisible = !document.hidden;
 
     // 1-second interval ticker
     const timer = setInterval(() => {
-      setWalkElapsedSeconds(prev => prev + 1);
-
-      if (isVisible) {
-        setScreenSeconds(prev => prev + 1);
-      }
+      setWalkElapsedSeconds(prevWalk => {
+        const nextWalk = prevWalk + 1;
+        setScreenSeconds(prevScreen => {
+          const nextScreen = isVisible ? prevScreen + 1 : prevScreen;
+          if (typeof onUpdate === 'function') {
+            onUpdate({ walkSeconds: nextWalk, screenSeconds: nextScreen });
+          }
+          return nextScreen;
+        });
+        return nextWalk;
+      });
     }, 1000);
 
     const handleVisibilityChange = () => {
