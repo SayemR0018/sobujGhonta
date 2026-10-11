@@ -27,7 +27,8 @@ export async function synthesizeSpeech({
   voice = null,
   language = 'en',
   clientIp = '127.0.0.1',
-  providerOverride = null
+  providerOverride = null,
+  elevenlabsApiKey = null
 }) {
   const cleanText = String(text || '').trim();
   if (!cleanText) {
@@ -72,10 +73,14 @@ export async function synthesizeSpeech({
   }
 
   // 3. Provider execution queue
-  // Order for auto: elevenlabs (only if ELEVENLABS_API_KEY is set) -> gemini -> mms -> sarvam -> browser
+  // Order for auto: elevenlabs (if key set via env or header) -> gemini -> mms -> sarvam -> browser
+  const activeElevenLabsKey = (elevenlabsApiKey && typeof elevenlabsApiKey === 'string' && elevenlabsApiKey.trim().length > 0)
+    ? elevenlabsApiKey.trim()
+    : config.elevenlabsApiKey;
+
   const providersToAttempt = [];
   if (requestedProvider === 'auto') {
-    if (config.elevenlabsApiKey) providersToAttempt.push('elevenlabs');
+    if (activeElevenLabsKey) providersToAttempt.push('elevenlabs');
     if (config.geminiApiKey) providersToAttempt.push('gemini');
     providersToAttempt.push('mms');
     if (config.sarvamApiKey) providersToAttempt.push('sarvam');
@@ -101,7 +106,8 @@ export async function synthesizeSpeech({
           text: cleanText,
           voiceId: elVoice,
           language,
-          modelId: config.elevenlabsModelId
+          modelId: config.elevenlabsModelId,
+          apiKey: activeElevenLabsKey
         });
         if (elRes && elRes.success && elRes.audioBuffer) {
           result = {

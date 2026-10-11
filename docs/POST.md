@@ -1,7 +1,7 @@
 ---
 title: "Sobuj Ghonta (সবুজ ঘণ্টা) — The Green Hour: Screen-Minimizing Urban Nature Companion"
 published: false
-description: "An ambient, screen-minimizing outdoor companion that finds safe urban green windows, scores environmental health deterministically, and puts your phone in your pocket with Gemma, free TTS, and Render."
+description: "An ambient, screen-minimizing outdoor companion that finds safe urban green windows, scores environmental health deterministically, and puts your phone in your pocket with Gemma, ElevenLabs, TabPFN, SerpApi, and Render."
 tags: devchallenge, hf26challenge, opensource, ai
 cover_image: https://raw.githubusercontent.com/SayemR0018/sobujGhonta/main/docs/cover.png
 ---
@@ -30,7 +30,7 @@ I built **Sobuj Ghonta (সবুজ ঘণ্টা — "The Green Hour")** to 
 - **Prior Labs TabPFN In-Context Uncertainty Forecasting:** Integrates the TabPFN tabular foundation model to deliver 24–72h quantile intervals ($p_{10}, p_{50}, p_{90}$) and anomaly detection, with fallback strictly labeled `"baseline (not TabPFN)"`.
 - **Unified Live Web Search (SerpApi & Serper):** Surfaces screen-minimizing park closures, gate maintenance, and official alerts in at most **one concise spoken line** with prompt-injection defense.
 - **Immutable Code Guardrails:** Hard mathematical checks that Google's open-weight **Gemma** model cannot override. If AQI > 150, effort is locked to gentle; if AQI > 200, outdoor cardio is barred, and N95 mask / postpone guidance is enforced.
-- **Spoken Audio Walk in Your Pocket:** A zero-cost, multi-tier TTS chain (**Gemini 3.8 Flash TTS** reusing the same key as Gemma, open-weight **Meta MMS-TTS**, and client **Web Speech API**) delivering mindful walk segments. Pair with lock-screen **Media Session API** controls and an **OLED pitch-black Pocket Mode**.
+- **Spoken Audio Walk in Your Pocket:** A flexible, cascading multi-tier TTS chain (studio-grade **ElevenLabs** with monthly credit protection, zero-cost **Gemini 3.8 Flash TTS** reusing the same key as Gemma, open-weight **Meta MMS-TTS**, and client **Web Speech API**) delivering mindful walk segments. Pair with lock-screen **Media Session API** controls and an **OLED pitch-black Pocket Mode**.
 - **Global & Multilingual Support:** 8 languages (English, Bengali, Hindi, Spanish, Arabic with full RTL layout, French, Portuguese, Indonesian), unit conversions (°C/°F, km/mi), and 8 bundled offline city packs.
 - **Screen-vs-Outside Meter & Canvas Receipt:** Uses the **Page Visibility API** to track foreground screen seconds against total walk duration, generating a downloadable tactile share card.
 - **On-Device Nature Journal:** Photo and note observations stored locally in browser **IndexedDB**; photos are never uploaded or retained on remote servers.
@@ -119,12 +119,14 @@ To address the exact failure discovered during my Ramna Park walk (a padlocked g
 - **Prompt Injection Defense (`server/services/search/normalizer.js`):** Web search snippets are untrusted. We strip HTML tags, cap snippets at 200 characters, neutralize pseudo-URLs (`javascript:`, `data:`), and enforce prompt boundaries so instructions inside snippets can never override deterministic safety guardrails.
 - **Privacy Design:** Latitude and longitude are rounded to 2 decimal places (~1.1 km) before generating cache keys, preventing user location tracking.
 
-### 5. Zero-Cost Free TTS Provider Chain
-When building audio walk narration, commercial paid TTS services created an unnecessary cost barrier. We designed an automated fallback chain in `server/services/tts/index.js`:
-1. **Gemini 3.8 Flash TTS (`gemini-3.8-flash-tts`):** Reuses the user's existing Google AI Studio key (`GEMMA_API_KEY`). Generates 24 kHz studio-quality audio in English and Bengali (`bn-BD`). When encountering Google's free-tier 3 RPM quota limit, it handles backoff automatically.
-2. **Meta MMS-TTS (`facebook/mms-tts-ben` & `eng`):** Open-weight multilingual speech models running on Hugging Face Serverless Inference behind an optional `HF_TOKEN`.
-3. **Client Web Speech API:** Client-side zero-cloud fallback with automated Bengali voice detection.
-4. **Bundled Dhaka Audio:** 8 pre-generated audio clips committed into the repository and pre-cached by Service Worker v2, guaranteeing that judges and users can experience high-fidelity voice guidance with zero latency and zero keys.
+### 5. Multi-Tier Cascading TTS Provider Chain (ElevenLabs + Zero-Cost Fallbacks)
+Mindful nature audio guidance requires natural, calm delivery. Rather than locking users to a single costly vendor or an unnatural synthetic voice, we built a 4-tier cascading voice pipeline in `server/services/tts/index.js` and `server/services/tts/elevenlabs.js`:
+1. **ElevenLabs Multilingual Studio Voice (`eleven_multilingual_v2`):** When configured via server environment or in-app HTTPS headers, ElevenLabs synthesizes rich, emotionally attuned guidance. We tuned the acoustic profile for slow outdoor walking (`speed: 0.9, stability: 0.5, similarity_boost: 0.75`), resolved voices dynamically (`Anika` default library voice, with dedicated language overrides for Bengali and English), and enforced an in-memory soft budget cap of **8,000 characters/month** to protect free-tier users from bill shock or mid-walk quota failure.
+2. **Gemini 3.8 Flash TTS (`gemini-3.8-flash-tts`):** Zero-cost fallback reusing the user's existing Google AI Studio key (`GEMMA_API_KEY`). Generates 24 kHz studio-quality audio in English and Bengali (`bn-BD`). When encountering Google's free-tier 3 RPM quota limit, it handles backoff automatically.
+3. **Meta MMS-TTS (`facebook/mms-tts-ben` & `eng`):** Open-weight multilingual speech models running on Hugging Face Serverless Inference behind an optional `HF_TOKEN`.
+4. **Client Web Speech API & Bundled Audio:** Client-side zero-cloud fallback with automated Bengali voice detection, plus 8 pre-generated WAV clips committed into the repository and cached by Service Worker v2 for 0 ms offline walks.
+
+If ElevenLabs hits a concurrency limit, HTTP 429, or character budget cap, the orchestrator cascades seamlessly down to Gemini, MMS, or Web Speech without interrupting the walker's session.
 
 ### 6. Tactile UI Redesign, Pocket Mode & Share Card
 - **Information Architecture:** Rebuilt into 6 focused views: Home, Timeline (inline SVG band chart with TabPFN quantile bands), Places (list/radar toggle), Walk Mode (Pocket Mode), Journal, and Settings.
@@ -177,7 +179,10 @@ This project was architected, implemented, and verified collaboratively using **
 - **Best Use of Gemma ($200):** Google's open-weight Gemma model serves as the core reasoning engine, generating mindful walking scripts, sensory missions, and multimodal photo observations strictly constrained by deterministic safety rules. Supports both Google AI Studio API (`gemma-4-26b-a4b-it`) and fully offline local **Ollama** runtimes (`gemma2:9b`).
 - **Best Use of Render ($200):** Configured and deploy-ready on Render using a declarative Blueprint ([`render.yaml`](https://github.com/SayemR0018/sobujGhonta/blob/main/render.yaml)) that provisions a unified Node.js web service serving the Express API, static PWA client, `/health` monitoring, compression, and memory-safe fallbacks for the 512MB free tier.
 - **Best Use of TabPFN ($200):** Prior Labs TabPFN tabular foundation model provides in-context quantile uncertainty forecasting ($p_{10}, p_{50}, p_{90}$) for air quality and heat, local anomaly detection, and on-device Personal Green Hour logs with CSV import/export. Supported by empirical backtest evaluation on real Open-Meteo observations across 3 cities (`docs/TABPFN_EVAL.md`).
-- **Best Use of SerpApi ($200):** Unified live search adapter integrates SerpApi with prompt-injection defense, 45-minute caching, coordinate privacy (2 decimals), and screen-minimizing single-sentence delivery to alert walkers about real-time park closures, walkway maintenance, and official environmental advisories.
+
+### Partner Categories
+- **Best Use of SerpApi ($100):** Unified live search adapter integrates SerpApi with prompt-injection defense, 45-minute caching, coordinate privacy (2 decimals), and screen-minimizing single-sentence delivery to alert walkers about real-time park closures, walkway maintenance, and official environmental advisories.
+- **Best Use of ElevenLabs ($100):** High-fidelity walking audio narrated through ElevenLabs' `eleven_multilingual_v2` model with custom voice mappings for multilingual guidance. Features intelligent monthly character protection (8,000 char cap), seamless cascade fallback to Gemini/MMS/browser upon quota exhaustion, and a zero-leak secret architecture allowing keys to be set via CLI or in-app HTTPS headers.
 
 ### Overall Prize
 - **Hacktoberfest Week 1: Touch Grass ($250):** A comprehensive, culturally resonant outdoor companion tailored for high-density cities, built entirely on open-source AI and open data, mathematically proven to keep screen time minimal.

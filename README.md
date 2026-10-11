@@ -54,7 +54,7 @@ graph TD
         ScoreEngine[Deterministic Green Window<br/>Scoring Engine 0-100]
         Guardrails[Immutable Safety Guardrails<br/>Authoritative over LLM & Search]
         SearchAdapter[Unified Search Adapter<br/>SerpApi / Serper / None]
-        TTSOrch[Cascading TTS Orchestrator<br/>Gemini / Meta MMS / Web Speech]
+        TTSOrch[Cascading TTS Orchestrator<br/>ElevenLabs / Gemini / MMS / Web Speech]
         MLBridge[mlClient Bridge & Fallback]
         SecLog[Redacting Server Logger]
     end
@@ -65,6 +65,7 @@ graph TD
         Gemma[Google AI Studio<br/>gemma-4-26b-a4b-it / Local Ollama]
         PriorLabs[Prior Labs TabPFN<br/>Tabular Foundation Model]
         SearchAPI[SerpApi / Serper.dev<br/>Live Web Alerts]
+        ElevenLabs[ElevenLabs API<br/>Multilingual v2 Studio Voice]
     end
 
     UI --> Router
@@ -80,6 +81,7 @@ graph TD
     Guardrails --> Gemma
     SearchAdapter --> SearchAPI
     MLBridge --> PriorLabs
+    TTSOrch --> ElevenLabs
 ```
 
 ---
@@ -107,12 +109,13 @@ Public health rules in `server/services/guardrails.js` strictly sanitize and val
 - **Prompt Injection Defense:** Strips HTML, caps length at 200 chars, neutralizes `javascript:` / `data:` pseudo-URLs, and never executes instructions found inside search snippets.
 - **In-Memory Cache & Quotas:** 45-minute LRU cache with 2-decimal rounded coordinates to protect user location privacy.
 
-### 5. Cascading Multi-Tier Free TTS Provider Chain
-Delivers mindful audio guidance across English and Bengali (`bn-BD`):
-1. **Gemini 3.8 Flash TTS (`gemini-3.8-flash-tts`):** Reuses the existing Google AI Studio key (`GEMMA_API_KEY`). Studio-quality 24 kHz audio.
-2. **Meta MMS-TTS (`facebook/mms-tts-ben` & `eng`):** Open-weight speech models via Hugging Face Serverless Inference (`HF_TOKEN`).
-3. **Browser Web Speech API:** Client-side zero-cloud fallback with automated Bengali voice detection.
-4. **Bundled Dhaka Audio Clips:** 8 pre-generated WAV clips committed in the repository for 0 ms latency offline walks.
+### 5. Cascading Multi-Tier Audio Guidance (ElevenLabs + Gemini + Meta MMS)
+Delivers mindful audio guidance across English and Bengali (`bn-BD`) with a robust multi-tier fallback cascade:
+1. **ElevenLabs API (`eleven_multilingual_v2`):** Top-tier studio voice synthesis with expressive prosody. Features custom voice resolution hierarchy (`Anika` default library voice, or custom Bengali/English voice IDs). Built-in in-memory 8,000 monthly character budget cap prevents free-tier quota exhaustion.
+2. **Gemini 3.8 Flash TTS (`gemini-3.8-flash-tts`):** Reuses the existing Google AI Studio key (`GEMMA_API_KEY`). Studio-quality 24 kHz audio.
+3. **Meta MMS-TTS (`facebook/mms-tts-ben` & `eng`):** Open-weight speech models via Hugging Face Serverless Inference (`HF_TOKEN`).
+4. **Browser Web Speech API:** Client-side zero-cloud fallback with automated Bengali voice detection.
+5. **Bundled Dhaka Audio Clips:** 8 pre-generated WAV clips committed in the repository for 0 ms latency offline walks.
 
 ### 6. Ambient Tactile UI & OLED Pocket Mode
 - **Three Themes:** Light, Dark, and OLED Pure Black (`#000000`).
@@ -135,7 +138,7 @@ You do **not** need an API key to evaluate Sobuj Ghonta:
 
 To ensure keys are never exposed in logs, commits, or community posts:
 1. **Terminal CLI Setup:** `npm run setup:keys` prompts for keys with masked input (`*`), validates formatting, and writes to `.env` with restrictive `0600` permissions.
-2. **In-App Keys & Providers Panel:** Settings > Keys & Providers uses password fields with visibility toggles, format validation, and ephemeral `sessionStorage` by default (with optional opt-in to browser `IndexedDB`). Sent to backend exclusively via HTTPS request headers (`x-gemma-key`, `x-tabpfn-key`, etc.).
+2. **In-App Keys & Providers Panel:** Settings > Keys & Providers uses password fields with visibility toggles, format validation, and ephemeral `sessionStorage` by default (with optional opt-in to browser `IndexedDB`). Sent to backend exclusively via HTTPS request headers (`x-gemma-key`, `x-tabpfn-key`, `x-elevenlabs-key`, etc.).
 3. **Automated Redacting Logger & Secret Scanner:** `server/services/logger.js` automatically strips Google, ElevenLabs, Hugging Face, SerpApi, and TabPFN tokens from server output. `npm run scan:secrets` scans all files before commits.
 
 ### Privacy Guarantees
@@ -155,7 +158,13 @@ To ensure keys are never exposed in logs, commits, or community posts:
 | `GEMMA_MODEL` | No | `gemma-4-26b-a4b-it` | Google AI Studio model identifier |
 | `OLLAMA_URL` | No | `http://localhost:11434` | Local Ollama endpoint |
 | `OLLAMA_MODEL` | No | `gemma2:9b` | Local Ollama model tag |
-| `TTS_PROVIDER` | No | `auto` | TTS mode: `auto`, `gemini`, `mms`, `browser`, `none` |
+| `TTS_PROVIDER` | No | `auto` | TTS mode: `auto`, `elevenlabs`, `gemini`, `mms`, `browser`, `none` |
+| `ELEVENLABS_API_KEY` | Optional | — | ElevenLabs API key for studio multilingual TTS |
+| `ELEVENLABS_VOICE_ID` | No | `jUjRbhZWoMK4aDciW36V` | General ElevenLabs voice ID (`Anika` library voice) |
+| `ELEVENLABS_VOICE_ID_BN` | Optional | — | Language-specific Bengali voice ID override |
+| `ELEVENLABS_VOICE_ID_EN` | Optional | — | Language-specific English voice ID override |
+| `ELEVENLABS_MODEL_ID` | No | `eleven_multilingual_v2` | ElevenLabs multilingual model identifier |
+| `ELEVENLABS_MONTHLY_CHAR_CAP` | No | `8000` | Monthly character budget cap for free-tier credit protection |
 | `HF_TOKEN` | Optional | — | Hugging Face token for Meta MMS-TTS inference |
 | `TABPFN_MODE` | No | `auto` | TabPFN execution mode: `auto`, `local`, `client`, `off` |
 | `TABPFN_TOKEN` | Optional | — | Prior Labs Client API token (from https://cloud.priorlabs.ai) |
@@ -238,6 +247,17 @@ Deploy with the declarative Blueprint (`render.yaml`):
    - **Health Check:** `/health`
 5. (Optional) Set secret environment variables (`GEMMA_API_KEY`, `TABPFN_TOKEN`, `SERPAPI_API_KEY`) in the Render environment dashboard. The app boots immediately in zero-key mode if none are set.
 
+## 🏆 Targeted Hacktoberfest Prize Categories
+
+- **Featured: Best Use of Gemma ($200):** Google's open-weight Gemma model serves as the core reasoning engine, generating mindful walking scripts, sensory missions, and multimodal photo observations strictly constrained by deterministic safety rules. Supports both Google AI Studio API (`gemma-4-26b-a4b-it`) and fully offline local **Ollama** runtimes (`gemma2:9b`).
+- **Featured: Best Use of Render ($200):** Configured and deploy-ready on Render using a declarative Blueprint ([`render.yaml`](render.yaml)) that provisions a unified Node.js web service serving the Express API, static PWA client, `/health` monitoring, compression, and memory-safe fallbacks for the 512MB free tier.
+- **Featured: Best Use of TabPFN ($200):** Prior Labs TabPFN tabular foundation model provides in-context quantile uncertainty forecasting ($p_{10}, p_{50}, p_{90}$) for air quality and heat, local anomaly detection, and on-device Personal Green Hour logs with CSV import/export. Supported by empirical backtest evaluation on real Open-Meteo observations across 3 cities (`docs/TABPFN_EVAL.md`).
+- **Partner: Best Use of SerpApi ($100):** Unified live search adapter integrates SerpApi with prompt-injection defense, 45-minute caching, coordinate privacy (2 decimals), and screen-minimizing single-sentence delivery to alert walkers about real-time park closures, walkway maintenance, and official environmental advisories.
+- **Partner: Best Use of ElevenLabs ($100):** High-fidelity walking audio narrated through ElevenLabs' `eleven_multilingual_v2` model with custom voice mappings for multilingual guidance. Features intelligent monthly character protection (8,000 char cap), seamless cascade fallback to Gemini/MMS/browser upon quota exhaustion, and a zero-leak secret architecture allowing keys to be set via CLI or in-app HTTPS headers.
+- **Overall: Hacktoberfest Week 1: Touch Grass ($250):** An ambient, mobile-first urban companion designed for dense metropolitan cities, mathematically proven to keep screen time minimal (<3%).
+
+---
+
 ## 📚 Documentation Index
 All extended architectural, verification, and compliance specifications reside in the [`docs/`](docs/) directory:
 
@@ -262,6 +282,7 @@ Third-party models and open datasets:
 - **Prior Labs TabPFN:** Developed by Prior Labs GmbH (TabPFN-v2). Used under research/evaluation license terms. See [NOTICE](NOTICE) and [docs/TABPFN_EVAL.md](docs/TABPFN_EVAL.md).
 - **Google Gemma:** Google open weights governed by the Gemma Terms of Use.
 - **Meta MMS-TTS:** CC-BY-NC 4.0 (Meta AI).
+- **ElevenLabs:** Text-to-Speech API (`eleven_multilingual_v2`). Governed by ElevenLabs Terms of Service.
 - **Open-Meteo:** CC BY 4.0 (Free Weather & Air Quality API).
 - **OpenStreetMap:** Open Database License (ODbL 1.0).
 - **Typography:** Noto Sans Bengali & Inter (Google Fonts, SIL Open Font License).

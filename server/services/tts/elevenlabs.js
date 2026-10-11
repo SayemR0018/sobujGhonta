@@ -69,9 +69,14 @@ export async function synthesizeWithElevenLabs({
   voiceId = null,
   language = 'en',
   modelId = null,
-  settings = null
+  settings = null,
+  apiKey = null
 }) {
-  if (!config.elevenlabsApiKey) {
+  const activeKey = (apiKey && typeof apiKey === 'string' && apiKey.trim().length > 0)
+    ? apiKey.trim()
+    : config.elevenlabsApiKey;
+
+  if (!activeKey) {
     return {
       success: false,
       reason: 'ELEVENLABS_API_KEY not configured'
@@ -108,7 +113,7 @@ export async function synthesizeWithElevenLabs({
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
-        'xi-api-key': config.elevenlabsApiKey,
+        'xi-api-key': activeKey,
         'Content-Type': 'application/json',
         'Accept': 'audio/mpeg'
       },

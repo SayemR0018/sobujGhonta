@@ -233,6 +233,7 @@ apiRouter.post('/tts', async (req, res) => {
   try {
     const { text, voice, voiceId, language = 'en', provider } = req.body;
     const clientIp = req.ip || req.headers['x-forwarded-for'] || '127.0.0.1';
+    const userElevenLabsKey = req.headers['x-elevenlabs-key'] || null;
 
     if (!text || typeof text !== 'string' || !text.trim()) {
       return res.status(400).json({ ok: false, error: 'Text parameter is required' });
@@ -250,7 +251,8 @@ apiRouter.post('/tts', async (req, res) => {
       voice: voice || voiceId,
       language: language === 'bn' ? 'bn' : 'en',
       clientIp,
-      providerOverride: provider
+      providerOverride: provider,
+      elevenlabsApiKey: userElevenLabsKey
     });
 
     if (ttsResult.fallbackToBrowser) {

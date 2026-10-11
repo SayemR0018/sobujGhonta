@@ -20,7 +20,7 @@ Sobuj Ghonta employs a decoupled, local-first 3-tier architecture engineered for
 │    Session API (Lock-screen audio controls), HTML5 Canvas Share Card   │
 └──────────────────┬─────────────────────────────────────────────────────┘
                    │ HTTPS JSON / Audio Buffers
-                   │ Custom Headers: x-gemma-key, x-tabpfn-key, x-serpapi-key
+                   │ Custom Headers: x-gemma-key, x-tabpfn-key, x-serpapi-key, x-elevenlabs-key
 ┌──────────────────▼─────────────────────────────────────────────────────┐
 │                    NODE.JS EXPRESS SERVER (Port 10000)                 │
 │  - Hardened Production Middleware: Helmet (Strict CSP), Rate Limiting, │
@@ -28,7 +28,7 @@ Sobuj Ghonta employs a decoupled, local-first 3-tier architecture engineered for
 │  - REST API Gateway: /api/weather, /api/places, /api/plan, /api/tts    │
 │  - 8 Bundled Global City Offline Demo Packs (/api/demo/:city)          │
 │  - Authoritative Guardrails Engine (Safety Invariant over ML & Search) │
-│  - Multi-Tier Free TTS Cascade (Gemini 3.8 Flash -> MMS -> ElevenLabs) │
+│  - Cascading Multi-Tier TTS (ElevenLabs -> Gemini 3.8 Flash -> MMS)    │
 │  - Unified Search Adapter (SerpApi / Serper / None + Prompt Defenses)  │
 └──────────────────┬─────────────────────────────────────────────────────┘
                    │ HTTP JSON (Loopback 127.0.0.1:8000)
