@@ -1,0 +1,23 @@
+{
+  "city": "Tokyo",
+  "cityId": "tokyo",
+  "recordedDate": "2026-10-08",
+  "provider": "offline_snapshot",
+  "query": "Shinjuku Gyoen Tokyo news closures events",
+  "items": [
+    {
+      "title": "Shinjuku Gyoen Autumn Chrysanthemum Notice",
+      "snippet": "National Garden open 9:00 AM to 4:30 PM. Greenhouse pathways open with autumn botanical exhibits.",
+      "url": "https://env.go.jp/garden/shinjukugyoen/autumn",
+      "source": "env.go.jp",
+      "date": "2026-10-08"
+    },
+    {
+      "title": "Ueno Park Shinobazu Pond Lotus Walk",
+      "snippet": "Morning walking circuit around Shinobazu Pond. Waterfowl observation deck open daily without admission fee.",
+      "url": "https://japantimes.co.jp/culture/ueno-walk",
+      "source": "japantimes.co.jp",
+      "date": "2026-10-08"
+    }
+  ]
+}

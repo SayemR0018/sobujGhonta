@@ -1,0 +1,23 @@
+{
+  "city": "Nairobi",
+  "cityId": "nairobi",
+  "recordedDate": "2026-10-08",
+  "provider": "offline_snapshot",
+  "query": "Karura Forest Nairobi news closures events",
+  "items": [
+    {
+      "title": "Karura Forest Canopy Trail Maintenance Complete",
+      "snippet": "All marked walking trails open. Visitors reminded that gates close at 6:00 PM for wildlife protection.",
+      "url": "https://friendsofkarura.org/news/trail-status",
+      "source": "friendsofkarura.org",
+      "date": "2026-10-08"
+    },
+    {
+      "title": "Uhuru Park Reopening Updates",
+      "snippet": "Green botanical terraces open for quiet meditation and outdoor study between 8 AM and 5 PM.",
+      "url": "https://standardmedia.co.ke/nairobi/uhuru-park-status",
+      "source": "standardmedia.co.ke",
+      "date": "2026-10-08"
+    }
+  ]
+}

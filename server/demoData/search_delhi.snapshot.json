@@ -1,0 +1,23 @@
+{
+  "city": "Delhi",
+  "cityId": "delhi",
+  "recordedDate": "2026-10-08",
+  "provider": "offline_snapshot",
+  "query": "Lodhi Gardens Delhi news closures events",
+  "items": [
+    {
+      "title": "Lodhi Gardens Heritage Walk and Tree Tour",
+      "snippet": "Morning ecological walk focusing on native neem and banyan trees along the central monument pathways.",
+      "url": "https://timesofindia.indiatimes.com/city/delhi/lodhi-tree-walk",
+      "source": "timesofindia.indiatimes.com",
+      "date": "2026-10-08"
+    },
+    {
+      "title": "NDMC Maintenance Advisory for Sunder Nursery",
+      "snippet": "Path paving work ongoing near lake pavilion. Visitors advised to use eastern gates.",
+      "url": "https://delhitourism.gov.in/notices/sunder-nursery",
+      "source": "delhitourism.gov.in",
+      "date": "2026-10-08"
+    }
+  ]
+}

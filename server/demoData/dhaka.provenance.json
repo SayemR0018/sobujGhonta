@@ -1,0 +1,14 @@
+{
+  "model": "TabPFN-v2 / Deterministic Fallback Foundation",
+  "version": "2.0.4",
+  "inferenceMode": "prior_labs_tabular_quantiles",
+  "captureDate": "2026-10-11T06:45:30.066Z",
+  "city": "Dhaka",
+  "coordinates": {
+    "lat": 23.74,
+    "lon": 90.4
+  },
+  "dataSource": "Open-Meteo Historical & Air Quality API",
+  "provenanceHash": "sha256:ba81e8e10bf05e917227db5bbab3b078901bcc7f26c0f3dd1b2e9213cfd8d817",
+  "license": "Prior Labs TabPFN License v1.0 / Apache 2.0"
+}

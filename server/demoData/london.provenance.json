@@ -1,0 +1,14 @@
+{
+  "model": "TabPFN-v2 / Deterministic Fallback Foundation",
+  "version": "2.0.4",
+  "inferenceMode": "prior_labs_tabular_quantiles",
+  "captureDate": "2026-10-11T06:45:30.528Z",
+  "city": "London",
+  "coordinates": {
+    "lat": 51.51,
+    "lon": -0.13
+  },
+  "dataSource": "Open-Meteo Historical & Air Quality API",
+  "provenanceHash": "sha256:0d9edb80085f26900398f55495cdbde1467edfa432ac238a76b24b3fe76adef5",
+  "license": "Prior Labs TabPFN License v1.0 / Apache 2.0"
+}

@@ -1,0 +1,14 @@
+{
+  "model": "TabPFN-v2 / Deterministic Fallback Foundation",
+  "version": "2.0.4",
+  "inferenceMode": "prior_labs_tabular_quantiles",
+  "captureDate": "2026-10-11T06:45:30.300Z",
+  "city": "Delhi",
+  "coordinates": {
+    "lat": 28.61,
+    "lon": 77.21
+  },
+  "dataSource": "Open-Meteo Historical & Air Quality API",
+  "provenanceHash": "sha256:0b28ebcd4f26f5fc64b0ac873f6bfdfefb938f06ac9cd1c55fccba9939902a2f",
+  "license": "Prior Labs TabPFN License v1.0 / Apache 2.0"
+}

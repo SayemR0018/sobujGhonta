@@ -1,0 +1,23 @@
+{
+  "city": "Los Angeles",
+  "cityId": "los_angeles",
+  "recordedDate": "2026-10-08",
+  "provider": "offline_snapshot",
+  "query": "Griffith Park Los Angeles news closures events",
+  "items": [
+    {
+      "title": "Griffith Park Trail Maintenance Advisory",
+      "snippet": "Observatory West Trail cleared of brush. Fire safety clearance work completed along Vermont canyon ridge.",
+      "url": "https://laparks.org/notices/griffith-trail-update",
+      "source": "laparks.org",
+      "date": "2026-10-08"
+    },
+    {
+      "title": "Echo Park Lake Community Clean-up and Bird Walk",
+      "snippet": "Morning volunteer garden tending and waterfowl census around lotus beds this Sunday.",
+      "url": "https://latimes.com/california/echo-park-community",
+      "source": "latimes.com",
+      "date": "2026-10-08"
+    }
+  ]
+}

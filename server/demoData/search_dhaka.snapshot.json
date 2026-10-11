@@ -1,0 +1,23 @@
+{
+  "city": "Dhaka",
+  "cityId": "dhaka",
+  "recordedDate": "2026-10-08",
+  "provider": "offline_snapshot",
+  "query": "Ramna Park Dhaka news closures events",
+  "items": [
+    {
+      "title": "Ramna Park Maintenance Notice",
+      "snippet": "South gate of Ramna Park closed for walkway renovation through Sunday. North trail reopened for morning walkers.",
+      "url": "https://dhakatribune.com/city/ramna-maintenance",
+      "source": "dhakatribune.com",
+      "date": "2026-10-08"
+    },
+    {
+      "title": "Weekend Birding Walk in Dhaka",
+      "snippet": "Join local naturalists for an early morning wetland bird observation walk at Ramna Lake this Saturday.",
+      "url": "https://birdingbd.org/events/ramna-walk",
+      "source": "birdingbd.org",
+      "date": "2026-10-08"
+    }
+  ]
+}

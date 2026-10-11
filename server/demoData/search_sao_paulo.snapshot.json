@@ -1,0 +1,23 @@
+{
+  "city": "São Paulo",
+  "cityId": "sao_paulo",
+  "recordedDate": "2026-10-08",
+  "provider": "offline_snapshot",
+  "query": "Parque Ibirapuera Sao Paulo news closures events",
+  "items": [
+    {
+      "title": "Parque Ibirapuera Gate 3 Path Resurfacing",
+      "snippet": "Pedestrian access redirected through Gate 4 during pavement upkeep. Lake promenade accessible as usual.",
+      "url": "https://prefeitura.sp.gov.br/noticias/ibirapuera-obras",
+      "source": "prefeitura.sp.gov.br",
+      "date": "2026-10-08"
+    },
+    {
+      "title": "Parque Trianon Atlantic Forest Observation Walk",
+      "snippet": "Guided native biodiversity discovery tour among centennial trees on Avenida Paulista.",
+      "url": "https://folha.uol.com.br/cotidiano/trianon-passeio",
+      "source": "folha.uol.com.br",
+      "date": "2026-10-08"
+    }
+  ]
+}

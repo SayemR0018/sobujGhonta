@@ -1,0 +1,23 @@
+{
+  "city": "Sydney",
+  "cityId": "sydney",
+  "recordedDate": "2026-10-08",
+  "provider": "offline_snapshot",
+  "query": "Royal Botanic Garden Sydney news closures events",
+  "items": [
+    {
+      "title": "Royal Botanic Garden Harbor Walk Notice",
+      "snippet": "Foreshore path open with scenic views. Lawn maintenance underway around Palace Rose Garden.",
+      "url": "https://rbgsyd.nsw.gov.au/notices/spring-lawn-care",
+      "source": "rbgsyd.nsw.gov.au",
+      "date": "2026-10-08"
+    },
+    {
+      "title": "Centennial Parklands Wetland Bird Survey Walk",
+      "snippet": "Community bird monitoring walk around Lachlan Swamp starting at sunrise this Saturday.",
+      "url": "https://smh.com.au/environment/centennial-bird-walk",
+      "source": "smh.com.au",
+      "date": "2026-10-08"
+    }
+  ]
+}

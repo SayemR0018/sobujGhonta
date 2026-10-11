@@ -1,0 +1,23 @@
+{
+  "city": "London",
+  "cityId": "london",
+  "recordedDate": "2026-10-08",
+  "provider": "offline_snapshot",
+  "query": "Hyde Park London news closures events",
+  "items": [
+    {
+      "title": "Hyde Park Rose Garden Autumn Pruning Notice",
+      "snippet": "Seasonal maintenance in southeast quadrant underway. Main Serpentine perimeter paths remain open to pedestrians.",
+      "url": "https://royalparks.org.uk/news/hyde-park-autumn",
+      "source": "royalparks.org.uk",
+      "date": "2026-10-08"
+    },
+    {
+      "title": "Regent's Park Wetland Bird Walk",
+      "snippet": "Guided waterfowl observation walk starting from Boating Lake cafe at 9 AM Saturday.",
+      "url": "https://bbc.co.uk/news/london-parks-nature",
+      "source": "bbc.co.uk",
+      "date": "2026-10-08"
+    }
+  ]
+}
