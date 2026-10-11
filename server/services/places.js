@@ -31,8 +31,8 @@ export function walkingTimeMinutes(distanceMeters) {
  * Discovers green spaces within ~3 km using OpenStreetMap Overpass API
  */
 export async function findNearbyGreenSpaces(lat, lon, radiusMeters = 3000) {
-  const roundedLat = Number(lat).toFixed(3);
-  const roundedLon = Number(lon).toFixed(3);
+  const roundedLat = Number(lat).toFixed(2);
+  const roundedLon = Number(lon).toFixed(2);
   const cacheKey = `places:${roundedLat},${roundedLon},${radiusMeters}`;
 
   const cached = placesCache.get(cacheKey);

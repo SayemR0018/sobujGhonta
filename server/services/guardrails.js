@@ -15,19 +15,32 @@ export const MEDICAL_DISCLAIMER_BN =
 export function evaluateSafetyGuardrails({
   aqi = 50,
   apparentTemp = 25,
+  temp = 25,
   humidity = 60,
   precipProb = 0,
   precip = 0,
   weatherCode = 0,
-  hour = 12
+  windSpeedKmh = 10,
+  windSpeed = null,
+  hour = 12,
+  lat = 23.74,
+  dayOfYear = 180
 }) {
+  const effectiveWindSpeedKmh = windSpeed !== null ? (windSpeed * 3.6) : windSpeedKmh;
+  const effectiveTemp = temp !== undefined && temp !== null ? Number(temp) : Number(apparentTemp);
+
   const flags = {
     unhealthyAqi: aqi > 150,
     hazardousAqi: aqi > 200,
     extremeHeat: apparentTemp >= 38,
     rainThunder: [95, 96, 99].includes(weatherCode) || precip >= 2.0 || precipProb >= 70,
     mosquitoRisk: apparentTemp >= 24 && humidity >= 65 && (precipProb >= 30 || precip > 0),
-    middaySun: hour >= 11 && hour <= 15 && apparentTemp >= 34
+    middaySun: hour >= 11 && hour <= 15 && apparentTemp >= 34,
+    freezing: effectiveTemp <= 0.0,
+    windChill: effectiveTemp <= 10 && effectiveWindSpeedKmh >= 20,
+    iceOrSnow: [71, 73, 75, 77, 85, 86].includes(weatherCode),
+    extremeWind: effectiveWindSpeedKmh >= 60,
+    polarConditions: Math.abs(lat) >= 66.5
   };
 
   const requiredHealthNotesEn = [];
@@ -82,15 +95,89 @@ export function evaluateSafetyGuardrails({
     );
   }
 
+  // Rule 6: Freezing Temperatures (<= 0°C)
+  if (flags.freezing) {
+    requiredHealthNotesEn.push(
+      `Freezing hazard (${Math.round(effectiveTemp)}°C): Sub-zero cold increases hypothermia risk. Wear thermal layers, gloves, and limit exposure to short bursts.`
+    );
+    requiredHealthNotesBn.push(
+      `হিমাঙ্কের সতর্কতা (${Math.round(effectiveTemp)}°C): প্রচণ্ড ঠান্ডায় শরীর দ্রুত তাপ হারায়। পর্যাপ্ত শীতবস্ত্র পরিধান করুন এবং হাঁটার সময় সীমিত রাখুন।`
+    );
+  }
+
+  // Rule 7: Wind Chill (temp <= 10°C and wind >= 20 km/h)
+  if (flags.windChill) {
+    requiredHealthNotesEn.push(
+      `Wind chill advisory (${Math.round(effectiveWindSpeedKmh)} km/h winds): Cold gusts accelerate body cooling. Protect extremities and seek sheltered paths.`
+    );
+    requiredHealthNotesBn.push(
+      `কনকনে বাতাসের সতর্কতা (ঘণ্টায় ${Math.round(effectiveWindSpeedKmh)} কিমি বাতাস): ঠান্ডা বাতাসে দ্রুত শীত অনুভূত হয়। কান ও হাত ঢেকে রাখুন।`
+    );
+  }
+
+  // Rule 8: Ice and Snow Conditions (codes 71, 73, 75, 77, 85, 86)
+  if (flags.iceOrSnow) {
+    requiredHealthNotesEn.push(
+      'Ice and snow condition: Walkways may be slick and icy. Shorten your stride, step carefully on paved slopes, and wear traction footwear.'
+    );
+    requiredHealthNotesBn.push(
+      'তুষার ও বরফের সতর্কতা: হাঁটার পথ পিচ্ছিল হতে পারে। সাবধানে ও ছোট পদক্ষেপে চলুন এবং পিচ্ছিলরোধী জুতো ব্যবহার করুন।'
+    );
+  }
+
+  // Rule 9: Extreme Hurricane / Gale Winds (>= 60 km/h)
+  if (flags.extremeWind) {
+    requiredHealthNotesEn.push(
+      `Extreme high wind warning (${Math.round(effectiveWindSpeedKmh)} km/h): Risk of falling tree branches and debris. Stay away from mature canopies.`
+    );
+    requiredHealthNotesBn.push(
+      `ঝড়ো বাতাসের সতর্কতা (ঘণ্টায় ${Math.round(effectiveWindSpeedKmh)} কিমি বাতাস): গাছের ডালপালা ভেঙে পড়ার ঝুঁকি। বড় গাছের নিচে যাবেন না।`
+    );
+  }
+
   // Mandatory Medical Disclaimer
   requiredHealthNotesEn.push(MEDICAL_DISCLAIMER_EN);
   requiredHealthNotesBn.push(MEDICAL_DISCLAIMER_BN);
 
+  let maxAllowedEffort = 'moderate';
+  if (flags.hazardousAqi) {
+    maxAllowedEffort = 'rest';
+  } else if (flags.unhealthyAqi || flags.freezing || flags.iceOrSnow) {
+    maxAllowedEffort = 'gentle';
+  }
+
   return {
     flags,
-    maxAllowedEffort: flags.hazardousAqi ? 'rest' : flags.unhealthyAqi ? 'gentle' : 'moderate',
+    maxAllowedEffort,
     requiredHealthNotesEn,
     requiredHealthNotesBn
+  };
+}
+
+/**
+ * Calculates polar day/night solar intervals without NaN values.
+ * Handles latitudes near poles (|lat| >= 66.5°).
+ */
+export function getPolarDaylight(lat, dayOfYear = 180) {
+  const absLat = Math.abs(lat);
+  if (absLat >= 66.5) {
+    // Hemisphere-aware summer/winter solstice
+    const isNorthern = lat > 0;
+    const isSummerSolsticeWindow = dayOfYear >= 80 && dayOfYear <= 264; // ~March 21 to Sept 22
+    const isPolarDay = isNorthern ? isSummerSolsticeWindow : !isSummerSolsticeWindow;
+    return {
+      isPolarDay,
+      isPolarNight: !isPolarDay,
+      daylightHours: isPolarDay ? 24 : 0,
+      hasSunset: false
+    };
+  }
+
+  return {
+    isPolarDay: false,
+    isPolarNight: false,
+    daylightHours: 12,
+    hasSunset: true
   };
 }
 
