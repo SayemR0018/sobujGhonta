@@ -35,9 +35,13 @@ Render parses the Blueprint and prompts you for any secret environment variables
 | Variable | Required? | Recommended Value / Description |
 | :--- | :---: | :--- |
 | `GEMMA_API_KEY` | **Recommended** | Your Google AI Studio API key. Powers Gemma walk generation and Gemini 3.8 Flash TTS. |
+| `TABPFN_TOKEN` | *Optional* | Prior Labs client access token (from https://cloud.priorlabs.ai) for TabPFN foundation model tabular forecasting. Auto-falls back to deterministic ensemble baseline if unset. |
+| `SERPAPI_API_KEY` | *Optional* | SerpApi key (from https://serpapi.com/manage-api-key) for live Google Search park closures and nature advisories. Auto-falls back to offline snapshots if unset. |
+| `SERPER_API_KEY` | *Optional* | Alternative search key from Serper.dev. |
 | `HF_TOKEN` | *Optional* | Hugging Face User Access Token (Free). Enables Meta MMS-TTS serverless fallback. |
+| `ELEVENLABS_API_KEY` | *Optional* | ElevenLabs key for high-fidelity studio voice narration. |
 
-*(All other environment variables like `NODE_VERSION=20.18.0`, `NODE_ENV=production`, `PORT=10000`, `LLM_PROVIDER=gemma_api`, `GEMMA_MODEL=gemma-4-26b-a4b-it`, and `TTS_PROVIDER=auto` are automatically provisioned by `render.yaml`.)*
+*(All other environment variables like `NODE_VERSION=20.18.0`, `NODE_ENV=production`, `PORT=10000`, `LLM_PROVIDER=gemma_api`, `GEMMA_MODEL=gemma-4-26b-a4b-it`, `TTS_PROVIDER=auto`, `TABPFN_MODE=auto`, and `SEARCH_PROVIDER=none` are automatically provisioned by `render.yaml`.)*
 
 ### Step 4: Apply Blueprint and Deploy
 1. Click **Apply Blueprint** (or **Create Web Service**).
@@ -110,9 +114,10 @@ node scripts/smoke.mjs https://sobujghonta.onrender.com
   ✔ [PASS] GET /demo-audio/bn_0.wav (Static Pre-generated WAV) (87ms)
   ✔ [PASS] GET /manifest.json (PWA Web App Manifest) (45ms)
   ✔ [PASS] GET /sw.js (Service Worker with no-cache header) (41ms)
+  ✔ [PASS] GET /api/search/heads-up (Search Heads-Up Endpoint) (68ms)
 
 ================ SMOKE SUMMARY ================
-Passed: 8 / 8
+Passed: 9 / 9
 Failed: 0
 Status: READY FOR DEPLOYMENT / HEALTHY
 ===============================================

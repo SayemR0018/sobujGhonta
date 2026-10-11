@@ -11,10 +11,14 @@
     "build": "npm run build --workspace=client",
     "postinstall": "npm run build --workspace=client",
     "test": "node --test server/tests/**/*.test.js server/tests/*.js",
+    "test:e2e": "node tests/runner.mjs",
+    "backtest": "node scripts/backtest.mjs",
     "smoke": "node scripts/smoke.mjs",
     "verify": "npm test && npm run build && npm run smoke",
     "tts:test": "node scripts/testVoice.mjs",
-    "demo:audio": "node scripts/generateDemoAudio.mjs"
+    "demo:audio": "node scripts/generateDemoAudio.mjs",
+    "setup:keys": "node scripts/setup-keys.mjs",
+    "scan:secrets": "node scripts/scan-secrets.mjs"
   },
   "workspaces": [
     "client"

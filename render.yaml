@@ -35,3 +35,13 @@ services:
         value: jUjRbhZWoMK4aDciW36V
       - key: ELEVENLABS_MODEL_ID
         value: eleven_multilingual_v2
+      - key: SEARCH_PROVIDER
+        value: none
+      - key: SERPAPI_API_KEY
+        sync: false
+      - key: SERPER_API_KEY
+        sync: false
+      - key: TABPFN_MODE
+        value: auto
+      - key: TABPFN_TOKEN
+        sync: false

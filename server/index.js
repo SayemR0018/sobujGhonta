@@ -9,6 +9,7 @@ import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
 import { apiRouter } from './routes/api.js';
+import { logger } from './services/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -151,7 +152,7 @@ app.get('*', (req, res, next) => {
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error('[Server Error]:', err.stack);
+  logger.error('[Server Error]:', err.stack || err.message);
   res.status(500).json({
     ok: false,
     error: err.message || 'Internal Server Error'

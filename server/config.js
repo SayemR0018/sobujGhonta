@@ -30,6 +30,16 @@ export const config = {
   geminiTtsModel: process.env.GEMINI_TTS_MODEL || 'gemini-3.8-flash-tts',
   geminiTtsVoice: process.env.GEMINI_TTS_VOICE || 'Kore',
   hfToken: process.env.HF_TOKEN || '',
-  sarvamApiKey: process.env.SARVAM_API_KEY || ''
+  sarvamApiKey: process.env.SARVAM_API_KEY || '',
+
+  // TabPFN & ML Sidecar Configuration
+  tabpfnMode: (process.env.TABPFN_MODE || 'auto').toLowerCase(),
+  tabpfnToken: process.env.TABPFN_TOKEN || process.env.TABPFN_API_KEY || '',
+  mlSidecarUrl: process.env.ML_SIDECAR_URL || 'http://127.0.0.1:8000',
+
+  // Live Web Search Configuration (Chain: serpapi | serper | none)
+  searchProvider: (process.env.SEARCH_PROVIDER || '').toLowerCase(),
+  serpapiApiKey: process.env.SERPAPI_API_KEY || '',
+  serperApiKey: process.env.SERPER_API_KEY || ''
 };
 
